@@ -18,9 +18,12 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
   const [isStreaming, setIsStreaming] = useState(false)
   const [sources, setSources] = useState<string[]>([])
   const abortRef = useRef<AbortController | null>(null)
+  // Ref-based guard prevents stale-closure race on rapid double-calls.
+  const streamingRef = useRef(false)
 
   const sendMessage = useCallback(async (text: string) => {
-    if (isStreaming) return
+    if (streamingRef.current) return
+    streamingRef.current = true
 
     const userMessage: ChatMessage = { role: 'user', content: text }
     const updatedMessages = [...messages, userMessage]
@@ -28,7 +31,7 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
     setIsStreaming(true)
     setSources([])
 
-    // Reserve a slot for the assistant response
+    // Reserve a slot for the assistant response.
     setMessages(prev => [...prev, { role: 'assistant', content: '' }])
 
     abortRef.current = new AbortController()
@@ -51,8 +54,9 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
+      let finished = false
 
-      while (true) {
+      while (!finished) {
         const { done, value } = await reader.read()
         if (done) break
 
@@ -65,7 +69,12 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
           const raw = line.slice(6).trim()
           if (!raw) continue
 
-          const event: SSEEvent = JSON.parse(raw)
+          let event: SSEEvent
+          try {
+            event = JSON.parse(raw)
+          } catch {
+            continue
+          }
 
           if (event.type === 'token' && event.content) {
             setMessages(prev => {
@@ -77,6 +86,7 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
           } else if (event.type === 'sources' && event.sources) {
             setSources(event.sources)
           } else if (event.type === 'done') {
+            finished = true
             break
           } else if (event.type === 'error') {
             setMessages(prev => {
@@ -84,6 +94,8 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
               next[next.length - 1] = { role: 'assistant', content: event.content ?? 'Произошла ошибка' }
               return next
             })
+            finished = true
+            break
           }
         }
       }
@@ -96,12 +108,15 @@ export function useChat({ recipeContext = '' }: UseChatOptions = {}): UseChatRet
         })
       }
     } finally {
+      streamingRef.current = false
       setIsStreaming(false)
     }
-  }, [messages, isStreaming, recipeContext])
+  }, [messages, recipeContext])
 
   const clearMessages = useCallback(() => {
     abortRef.current?.abort()
+    streamingRef.current = false
+    setIsStreaming(false)
     setMessages([])
     setSources([])
   }, [])
