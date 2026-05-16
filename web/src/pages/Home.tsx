@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { api } from '../api/client'
+import { api, encodeRecipeId } from '../api/client'
 import type { Category, RecipeSummary } from '../api/types'
 import CategoryGrid from '../components/CategoryGrid'
 import RecipeCard from '../components/RecipeCard'
@@ -35,7 +35,7 @@ export default function Home() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
-    const id = btoa(encodeURIComponent(searchQuery.trim()))
+    const id = encodeRecipeId(searchQuery.trim())
     navigate(`/recipe/${id}`)
   }
 
