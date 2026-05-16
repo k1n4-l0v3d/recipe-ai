@@ -31,7 +31,16 @@ func TestLoad(t *testing.T) {
 }
 
 func TestLoadDefaultPort(t *testing.T) {
+	original, exists := os.LookupEnv("PORT")
 	os.Unsetenv("PORT")
+	defer func() {
+		if exists {
+			os.Setenv("PORT", original)
+		} else {
+			os.Unsetenv("PORT")
+		}
+	}()
+
 	cfg := config.Load()
 	if cfg.Port != "8080" {
 		t.Errorf("expected default Port=8080, got %s", cfg.Port)
