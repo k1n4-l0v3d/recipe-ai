@@ -89,7 +89,6 @@ export default function Recipe() {
             isStreaming={isStreaming}
             sources={sources}
             onSend={sendMessage}
-            recipeContext={`${recipe.name} (${recipe.cuisine})`}
           />
         </div>
       </div>

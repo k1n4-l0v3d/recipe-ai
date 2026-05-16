@@ -7,7 +7,6 @@ interface Props {
   isStreaming: boolean
   sources: string[]
   onSend: (text: string) => void
-  recipeContext: string
 }
 
 export default function ChatPanel({ messages, isStreaming, sources, onSend }: Props) {
@@ -169,6 +168,7 @@ export default function ChatPanel({ messages, isStreaming, sources, onSend }: Pr
           />
           <button
             type="submit"
+            aria-label="Отправить"
             disabled={isStreaming || !input.trim()}
             style={{
               background: isStreaming || !input.trim() ? 'var(--bg-3)' : 'var(--accent)',
@@ -181,6 +181,7 @@ export default function ChatPanel({ messages, isStreaming, sources, onSend }: Pr
               justifyContent: 'center',
               fontSize: 14,
               color: isStreaming || !input.trim() ? 'var(--text-3)' : '#fff',
+              cursor: isStreaming || !input.trim() ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s',
               flexShrink: 0,
             }}
