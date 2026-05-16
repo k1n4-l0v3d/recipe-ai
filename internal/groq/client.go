@@ -87,6 +87,9 @@ func (c *Client) Chat(ctx context.Context, messages []domain.ChatMessage, recipe
 		return nil, fmt.Errorf("groq: chat: %w", err)
 	}
 
+	if len(resp.Choices) == 0 {
+		return nil, fmt.Errorf("groq: empty choices in chat response")
+	}
 	choice := resp.Choices[0].Message
 	if len(choice.ToolCalls) > 0 {
 		tc := choice.ToolCalls[0]
@@ -144,6 +147,9 @@ func (c *Client) jsonCompletion(ctx context.Context, prompt string) (string, err
 	})
 	if err != nil {
 		return "", fmt.Errorf("groq: completion: %w", err)
+	}
+	if len(resp.Choices) == 0 {
+		return "", fmt.Errorf("groq: empty choices in completion response")
 	}
 
 	content := resp.Choices[0].Message.Content
