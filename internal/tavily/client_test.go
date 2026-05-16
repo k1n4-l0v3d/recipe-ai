@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"recipe-ai/internal/tavily"
@@ -37,7 +38,23 @@ func TestSearch(t *testing.T) {
 	if result.URLs[0] != "https://eda.ru/recipe/1" {
 		t.Errorf("unexpected URL: %s", result.URLs[0])
 	}
-	if result.Content == "" {
-		t.Error("expected non-empty content")
+	if !strings.Contains(result.Content, "Борщ") {
+		t.Errorf("expected content to contain title 'Борщ', got: %s", result.Content)
+	}
+	if !strings.Contains(result.Content, "---") {
+		t.Error("expected content to contain '---' separator between results")
+	}
+}
+
+func TestSearchNon200(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer srv.Close()
+
+	client := tavily.NewClient("test-key", srv.URL)
+	_, err := client.Search(context.Background(), "query")
+	if err == nil {
+		t.Error("expected error on non-200 response")
 	}
 }
