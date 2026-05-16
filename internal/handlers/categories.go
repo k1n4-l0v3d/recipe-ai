@@ -46,9 +46,9 @@ func GetCategoryRecipes(gen RecipeGenerator) gin.HandlerFunc {
 			return
 		}
 
-		// Assign URL-safe IDs (base64 of the recipe name)
+		// Assign URL-safe IDs (raw base64, no padding — matches frontend encodeRecipeId).
 		for i := range recipes {
-			recipes[i].ID = base64.URLEncoding.EncodeToString([]byte(recipes[i].Name))
+			recipes[i].ID = base64.RawURLEncoding.EncodeToString([]byte(recipes[i].Name))
 		}
 
 		c.JSON(http.StatusOK, recipes)

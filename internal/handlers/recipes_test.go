@@ -44,7 +44,7 @@ func TestGetRecipe(t *testing.T) {
 	router := gin.New()
 	router.GET("/api/recipes/:id", handlers.GetRecipe(mock))
 
-	id := base64.URLEncoding.EncodeToString([]byte("Борщ"))
+	id := base64.RawURLEncoding.EncodeToString([]byte("Борщ"))
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/recipes/"+id, nil)
 	router.ServeHTTP(w, req)

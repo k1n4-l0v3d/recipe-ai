@@ -12,7 +12,7 @@ func GetRecipe(gen RecipeGenerator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		encodedID := c.Param("id")
 
-		nameBytes, err := base64.URLEncoding.DecodeString(encodedID)
+		nameBytes, err := base64.RawURLEncoding.DecodeString(encodedID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid recipe id"})
 			return
