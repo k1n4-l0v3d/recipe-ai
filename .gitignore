@@ -4,3 +4,8 @@ web/dist/
 server
 *.exe
 .superpowers/
+*.test
+*.out
+web/.env
+web/.env.local
+.DS_Store
