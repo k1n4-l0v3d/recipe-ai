@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: recipe-ai
+    runtime: go
+    buildCommand: cd web && npm install && npm run build && cd .. && go build -o server ./cmd/server
+    startCommand: ./server
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: PORT
+        value: 8080
