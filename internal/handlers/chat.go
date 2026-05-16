@@ -56,9 +56,15 @@ func ChatSSE(groq interface {
 			return
 		}
 
-		// Limit history to last 10 messages to control context size
+		// Limit history to last 10 messages to control context size.
 		if len(req.Messages) > 10 {
 			req.Messages = req.Messages[len(req.Messages)-10:]
+		}
+
+		flusher, ok := c.Writer.(http.Flusher)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "streaming not supported"})
+			return
 		}
 
 		c.Header("Content-Type", "text/event-stream")
@@ -71,10 +77,10 @@ func ChatSSE(groq interface {
 		sendSSE := func(event domain.SSEEvent) {
 			data, _ := json.Marshal(event)
 			fmt.Fprintf(w, "data: %s\n\n", data)
-			w.(http.Flusher).Flush()
+			flusher.Flush()
 		}
 
-		// Phase 1: check for tool use (non-streaming)
+		// Phase 1: check for tool use (non-streaming).
 		resp, err := groq.Chat(c.Request.Context(), req.Messages, req.RecipeContext)
 		if err != nil {
 			sendSSE(domain.SSEEvent{Type: "error", Content: "Ошибка соединения с AI"})
@@ -84,13 +90,12 @@ func ChatSSE(groq interface {
 		var sources []string
 
 		if resp.ToolCallID != "" {
-			// Groq wants to search
+			// Groq wants to search the web.
 			sendSSE(domain.SSEEvent{Type: "searching", Content: "🔍 Ищу рецепты в интернете..."})
 
 			searchResult, searchErr := tavily.Search(c.Request.Context(), resp.ToolQuery)
 			var streamMessages []openai.ChatCompletionMessage
 			if searchErr != nil {
-				// Fall back: build messages without tool result
 				streamMessages = groq.BuildMessagesForStream(req.Messages, req.RecipeContext, "", "", "")
 			} else {
 				sources = searchResult.URLs
@@ -100,7 +105,7 @@ func ChatSSE(groq interface {
 				)
 			}
 
-			// Phase 2: stream final response
+			// Phase 2: stream final response.
 			stream, streamErr := groq.StreamChatWithContext(c.Request.Context(), streamMessages)
 			if streamErr != nil {
 				sendSSE(domain.SSEEvent{Type: "error", Content: "Ошибка генерации ответа"})
@@ -114,6 +119,7 @@ func ChatSSE(groq interface {
 					break
 				}
 				if recvErr != nil {
+					sendSSE(domain.SSEEvent{Type: "error", Content: "Ошибка получения ответа"})
 					break
 				}
 				if len(chunk.Choices) > 0 {
@@ -124,9 +130,14 @@ func ChatSSE(groq interface {
 				}
 			}
 		} else {
-			// No tool use — send the direct response word-by-word for streaming effect
+			// No tool use — send direct response word-by-word, respecting client disconnect.
 			words := strings.Fields(resp.Content)
 			for i, word := range words {
+				select {
+				case <-c.Request.Context().Done():
+					return
+				default:
+				}
 				suffix := " "
 				if i == len(words)-1 {
 					suffix = ""

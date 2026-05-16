@@ -27,13 +27,17 @@ func GetCategoryRecipes(gen RecipeGenerator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		categoryID := c.Param("id")
 
-		// Find category name from ID
-		categoryName := categoryID
+		// Find category name from ID — return 404 for unknown categories.
+		categoryName := ""
 		for _, cat := range domain.StaticCategories {
 			if cat.ID == categoryID {
 				categoryName = cat.Name
 				break
 			}
+		}
+		if categoryName == "" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "category not found"})
+			return
 		}
 
 		recipes, err := gen.GenerateRecipeList(c.Request.Context(), categoryName)
