@@ -25,11 +25,24 @@ export default function RecipeCard({ recipe, index }: Props) {
           background: 'var(--bg-2)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius)',
-          padding: 20,
+          overflow: 'hidden',
           cursor: 'pointer',
           height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
+        {/* Dish image */}
+        <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', flexShrink: 0, background: 'var(--bg-3)' }}>
+          <img
+            src={`https://source.unsplash.com/featured/400x225/?${encodeURIComponent(recipe.name)},food`}
+            alt={recipe.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        </div>
+
+        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>
           {recipe.name}
         </div>
@@ -61,6 +74,7 @@ export default function RecipeCard({ recipe, index }: Props) {
               {tag}
             </span>
           ))}
+        </div>
         </div>
       </motion.div>
     </Link>

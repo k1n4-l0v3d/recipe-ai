@@ -19,6 +19,24 @@ export default function RecipeDetail({ recipe }: Props) {
       transition={{ duration: 0.3 }}
       style={{ height: '100%', overflowY: 'auto', padding: 24 }}
     >
+      {/* Hero image */}
+      <div style={{
+        width: '100%',
+        height: 220,
+        borderRadius: 12,
+        overflow: 'hidden',
+        marginBottom: 20,
+        background: 'var(--bg-3)',
+        flexShrink: 0,
+      }}>
+        <img
+          src={`https://source.unsplash.com/featured/800x440/?${encodeURIComponent(recipe.name)},food`}
+          alt={recipe.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }}
+        />
+      </div>
+
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{
