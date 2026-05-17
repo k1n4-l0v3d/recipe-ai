@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useAnimate } from 'framer-motion'
 import type { Category } from '../api/types'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 interface Props {
   categories: Category[]
@@ -41,6 +42,9 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
   const [spinState, setSpinState] = useState<SpinState>('idle')
   const [winner, setWinner] = useState<Category | null>(null)
   const currentRotation = useRef(0)
+  const isMobile = useIsMobile()
+  const size = isMobile ? 200 : 240
+  const r = isMobile ? 96 : 116
 
   if (categories.length < 2) return null
 
@@ -77,7 +81,7 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
 
       {/* Wheel container — pointer is fixed, only the SVG group rotates */}
-      <div style={{ position: 'relative', width: 240, height: 240 }}>
+      <div style={{ position: 'relative', width: size, height: size }}>
 
         {/* Glow halo */}
         <div style={{
@@ -89,10 +93,10 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
         {/* Rotating SVG */}
         <svg
           ref={scope}
-          viewBox="0 0 240 240"
-          style={{ width: 240, height: 240, filter: 'drop-shadow(0 0 20px rgba(255,107,53,0.3))' }}
+          viewBox={`0 0 ${size} ${size}`}
+          style={{ width: size, height: size, filter: 'drop-shadow(0 0 20px rgba(255,107,53,0.3))' }}
         >
-          <g transform="translate(120,120)">
+          <g transform={`translate(${size / 2},${size / 2})`}>
             {categories.map((cat, i) => {
               const total = categories.length
               const angle = 360 / total
@@ -100,7 +104,6 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
               const endDeg = startDeg + angle
               const start = (startDeg * Math.PI) / 180
               const end = (endDeg * Math.PI) / 180
-              const r = 116
               const x1 = Math.sin(start) * r
               const y1 = -Math.cos(start) * r
               const x2 = Math.sin(end) * r
@@ -124,7 +127,7 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
                   />
                   <text
                     x={ex} y={ey + 6}
-                    fontSize="20"
+                    fontSize={isMobile ? '17' : '20'}
                     textAnchor="middle"
                     style={{ userSelect: 'none' }}
                   >
@@ -135,11 +138,11 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
             })}
 
             {/* Outer ring */}
-            <circle cx="0" cy="0" r="116" fill="none" stroke="#ff6b35" strokeWidth="2" strokeOpacity="0.5" />
+            <circle cx="0" cy="0" r={r} fill="none" stroke="#ff6b35" strokeWidth="2" strokeOpacity="0.5" />
 
             {/* Centre hub */}
-            <circle cx="0" cy="0" r="26" fill="#0d0d0d" stroke="#ff6b35" strokeWidth="2" />
-            <text x="0" y="9" fontSize="20" textAnchor="middle" style={{ userSelect: 'none' }}>🔥</text>
+            <circle cx="0" cy="0" r="22" fill="#0d0d0d" stroke="#ff6b35" strokeWidth="2" />
+            <text x="0" y="8" fontSize="17" textAnchor="middle" style={{ userSelect: 'none' }}>🔥</text>
           </g>
         </svg>
 

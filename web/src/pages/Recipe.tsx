@@ -6,12 +6,14 @@ import type { Recipe as RecipeType } from '../api/types'
 import RecipeDetail from '../components/RecipeDetail'
 import ChatPanel from '../components/ChatPanel'
 import { useChat } from '../hooks/useChat'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 export default function Recipe() {
   const { id } = useParams<{ id: string }>()
   const [recipe, setRecipe] = useState<RecipeType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     if (!id) return
@@ -60,38 +62,62 @@ export default function Recipe() {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        maxHeight: 'calc(100vh - 56px)',
+        // On desktop: fixed height with internal scroll. On mobile: natural scroll.
+        maxHeight: isMobile ? 'none' : 'calc(100vh - 56px)',
       }}
     >
       {/* Back link */}
-      <div style={{ padding: '12px 24px', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ padding: isMobile ? '10px 16px' : '12px 24px', borderBottom: '1px solid var(--border)' }}>
         <Link to="/" style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', alignItems: 'center', gap: 4 }}>
           ← Все рецепты
         </Link>
       </div>
 
-      {/* Split layout */}
-      <div style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1fr 360px',
-        overflow: 'hidden',
-      }}>
-        {/* Left: Recipe detail */}
-        <div style={{ borderRight: '1px solid var(--border)', overflowY: 'auto' }}>
-          <RecipeDetail recipe={recipe} />
-        </div>
+      {isMobile ? (
+        // Mobile: stacked layout — recipe on top, chat below
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          {/* Recipe detail scrolls naturally */}
+          <div style={{ padding: '0 0 8px' }}>
+            <RecipeDetail recipe={recipe} />
+          </div>
 
-        {/* Right: Chat */}
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <ChatPanel
-            messages={messages}
-            isStreaming={isStreaming}
-            sources={sources}
-            onSend={sendMessage}
-          />
+          {/* Chat panel with fixed height */}
+          <div style={{
+            borderTop: '1px solid var(--border)',
+            height: 420,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
+            <ChatPanel
+              messages={messages}
+              isStreaming={isStreaming}
+              sources={sources}
+              onSend={sendMessage}
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        // Desktop: side-by-side split layout
+        <div style={{
+          flex: 1,
+          display: 'grid',
+          gridTemplateColumns: '1fr 360px',
+          overflow: 'hidden',
+        }}>
+          <div style={{ borderRight: '1px solid var(--border)', overflowY: 'auto' }}>
+            <RecipeDetail recipe={recipe} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <ChatPanel
+              messages={messages}
+              isStreaming={isStreaming}
+              sources={sources}
+              onSend={sendMessage}
+            />
+          </div>
+        </div>
+      )}
     </motion.main>
   )
 }

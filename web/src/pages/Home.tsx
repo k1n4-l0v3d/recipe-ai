@@ -6,9 +6,11 @@ import type { Category, RecipeSummary } from '../api/types'
 import CategoryGrid from '../components/CategoryGrid'
 import RecipeCard from '../components/RecipeCard'
 import RouletteWheel from '../components/RouletteWheel'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 export default function Home() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [recipes, setRecipes] = useState<RecipeSummary[]>([])
@@ -77,7 +79,7 @@ export default function Home() {
       <div style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: '64px 24px 48px',
+        padding: isMobile ? '36px 16px 32px' : '64px 24px 48px',
         textAlign: 'center',
         background: 'linear-gradient(180deg, rgba(255,107,53,0.05) 0%, transparent 100%)',
       }}>
@@ -190,7 +192,7 @@ export default function Home() {
       </div>
 
       {/* Categories + Recipes */}
-      <div ref={recipesRef} style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px 48px' }}>
+      <div ref={recipesRef} style={{ maxWidth: 960, margin: '0 auto', padding: isMobile ? '0 16px 48px' : '0 24px 48px' }}>
         <div style={{
           fontSize: 11,
           letterSpacing: 2,
@@ -232,7 +234,7 @@ export default function Home() {
             </div>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))',
               gap: 16,
             }}>
               {recipes.map((r, i) => (

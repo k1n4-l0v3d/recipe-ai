@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 export default function Navbar() {
   const location = useLocation()
+  const isMobile = useIsMobile()
 
   const handleRecipesClick = (e: React.MouseEvent) => {
     if (location.pathname === '/') {
@@ -14,7 +16,7 @@ export default function Navbar() {
     <nav style={{
       background: 'var(--bg-2)',
       borderBottom: '1px solid var(--border)',
-      padding: '0 24px',
+      padding: `0 ${isMobile ? 16 : 24}px`,
       height: 56,
       display: 'flex',
       alignItems: 'center',
@@ -23,12 +25,13 @@ export default function Navbar() {
       top: 0,
       zIndex: 100,
     }}>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)', textDecoration: 'none' }}>
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text)', textDecoration: 'none' }}>
         <span style={{ fontSize: 22 }}>🔥</span>
-        <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: 2 }}>ВКУСНО</span>
+        {!isMobile && <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: 2 }}>ВКУСНО</span>}
+        {isMobile && <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: 2 }}>ВКУСНО</span>}
       </Link>
 
-      <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: isMobile ? 12 : 24, alignItems: 'center' }}>
         <Link
           to="/"
           onClick={handleRecipesClick}
@@ -36,7 +39,6 @@ export default function Navbar() {
             fontSize: 13,
             color: location.pathname === '/' ? 'var(--accent)' : 'var(--text-2)',
             textDecoration: 'none',
-            transition: 'color 0.2s',
           }}
         >
           Рецепты
@@ -46,11 +48,12 @@ export default function Navbar() {
           color: 'var(--accent)',
           background: 'var(--accent-glow)',
           border: '1px solid var(--accent)',
-          padding: '3px 10px',
+          padding: '3px 8px',
           borderRadius: 20,
-          letterSpacing: 1,
+          letterSpacing: 0.5,
+          whiteSpace: 'nowrap',
         }}>
-          AI Ассистент
+          {isMobile ? 'AI' : 'AI Ассистент'}
         </span>
       </div>
     </nav>
