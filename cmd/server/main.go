@@ -9,13 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 	openai "github.com/sashabaranov/go-openai"
 	"recipe-ai/internal/config"
+	"recipe-ai/internal/db"
 	"recipe-ai/internal/domain"
 	"recipe-ai/internal/groq"
 	"recipe-ai/internal/handlers"
 	"recipe-ai/internal/tavily"
 )
 
-// recipeGenAdapter bridges groq.Client to handlers.RecipeGenerator.
+// --- Adapters ---
+
 type recipeGenAdapter struct{ c *groq.Client }
 
 func (a *recipeGenAdapter) GenerateRecipeList(ctx context.Context, name string) ([]domain.RecipeSummary, error) {
@@ -28,7 +30,6 @@ func (a *recipeGenAdapter) GenerateRecipe(ctx context.Context, name string) (*do
 	return a.c.GenerateRecipe(ctx, name)
 }
 
-// chatGroqAdapter bridges groq.Client to handlers.GroqChatter + handlers.GroqStreamer.
 type chatGroqAdapter struct{ c *groq.Client }
 
 func (a *chatGroqAdapter) Chat(ctx context.Context, msgs []domain.ChatMessage, recipeCtx string) (*handlers.GroqChatResponse, error) {
@@ -51,7 +52,6 @@ func (a *chatGroqAdapter) StreamChatWithContext(ctx context.Context, msgs []open
 	return a.c.StreamChatWithContext(ctx, msgs)
 }
 
-// tavilyAdapter bridges tavily.Client to handlers.TavilySearcher.
 type tavilyAdapter struct{ c *tavily.Client }
 
 func (a *tavilyAdapter) Search(ctx context.Context, query string) (*handlers.TavilySearchResult, error) {
@@ -62,6 +62,8 @@ func (a *tavilyAdapter) Search(ctx context.Context, query string) (*handlers.Tav
 	return &handlers.TavilySearchResult{URLs: r.URLs, Content: r.Content}, nil
 }
 
+// --- Main ---
+
 func main() {
 	cfg := config.Load()
 	if cfg.GroqAPIKey == "" {
@@ -71,25 +73,54 @@ func main() {
 		log.Fatal("TAVILY_API_KEY is required")
 	}
 
+	// Database (optional — graceful degradation if DATABASE_URL not set)
+	var database *db.DB
+	if cfg.DatabaseURL != "" {
+		var err error
+		database, err = db.New(context.Background(), cfg.DatabaseURL)
+		if err != nil {
+			log.Fatalf("failed to connect to database: %v", err)
+		}
+		defer database.Close()
+
+		if err := database.Migrate(context.Background(), "./migrations"); err != nil {
+			log.Fatalf("failed to run migrations: %v", err)
+		}
+		log.Println("Database connected and migrations applied")
+	} else {
+		log.Println("DATABASE_URL not set — auth features disabled")
+	}
+
 	groqClient := groq.NewClient(cfg.GroqAPIKey, "")
 	tavilyClient := tavily.NewClient(cfg.TavilyAPIKey, "")
 
 	router := gin.Default()
 
-	api := router.Group("/api")
+	apiGroup := router.Group("/api")
 	{
-		api.GET("/categories", handlers.GetCategories())
-		api.GET("/categories/:id", handlers.GetCategoryRecipes(&recipeGenAdapter{groqClient}))
-		api.GET("/recipes/:id", handlers.GetRecipe(&recipeGenAdapter{groqClient}))
-		api.POST("/chat", handlers.ChatSSE(&chatGroqAdapter{groqClient}, &tavilyAdapter{tavilyClient}))
-		api.GET("/image", handlers.ImageProxy(cfg.PexelsAPIKey))
+		// Auth routes (only when DB is available)
+		if database != nil {
+			authHandler := handlers.NewAuthHandler(database)
+			authGroup := apiGroup.Group("/auth")
+			{
+				authGroup.POST("/register", authHandler.Register)
+				authGroup.POST("/login", authHandler.Login)
+				authGroup.POST("/logout", authHandler.Logout)
+				authGroup.GET("/me", authHandler.Me)
+			}
+		}
+
+		// Recipe routes
+		apiGroup.GET("/categories", handlers.GetCategories())
+		apiGroup.GET("/categories/:id", handlers.GetCategoryRecipes(&recipeGenAdapter{groqClient}))
+		apiGroup.GET("/recipes/:id", handlers.GetRecipe(&recipeGenAdapter{groqClient}))
+		apiGroup.POST("/chat", handlers.ChatSSE(&chatGroqAdapter{groqClient}, &tavilyAdapter{tavilyClient}))
+		apiGroup.GET("/image", handlers.ImageProxy(cfg.PexelsAPIKey))
 	}
 
-	// Serve static assets from the React build.
 	router.Static("/assets", "./web/dist/assets")
 	router.StaticFile("/favicon.ico", "./web/dist/favicon.ico")
 
-	// SPA fallback: serve index.html for all non-API routes.
 	router.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, "/api") {
 			c.Status(http.StatusNotFound)
