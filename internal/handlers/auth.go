@@ -119,6 +119,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	if user.IsBanned {
+		c.JSON(http.StatusForbidden, gin.H{"error": "аккаунт заблокирован"})
+		return
+	}
+
 	sessionID, err := h.db.CreateSession(c.Request.Context(), user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка сервера"})

@@ -132,6 +132,19 @@ func main() {
 				cabinetAuth.PUT("/notes/:recipe_id", cabinetHandler.UpsertNote)
 				cabinetAuth.DELETE("/notes/:recipe_id", cabinetHandler.DeleteNote)
 			}
+
+			// Admin routes (require admin role)
+			adminHandler := handlers.NewAdminHandler(database)
+			adminGroup := apiGroup.Group("/admin")
+			adminGroup.Use(auth.RequireAdmin(database))
+			{
+				adminGroup.GET("/stats", adminHandler.GetStats)
+				adminGroup.GET("/users", adminHandler.GetUsers)
+				adminGroup.PUT("/users/:id/role", adminHandler.SetRole)
+				adminGroup.PUT("/users/:id/ban", adminHandler.SetBan)
+				adminGroup.GET("/sessions", adminHandler.GetSessions)
+				adminGroup.DELETE("/sessions/:id", adminHandler.TerminateSession)
+			}
 		}
 
 		// Recipe routes

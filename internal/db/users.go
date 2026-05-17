@@ -22,8 +22,8 @@ func (db *DB) CreateUser(ctx context.Context, name, email, passwordHash string) 
 	err := db.pool.QueryRow(ctx, `
 		INSERT INTO users(name, email, password_hash)
 		VALUES($1, $2, $3)
-		RETURNING id::text, name, email, role, created_at::text
-	`, name, email, passwordHash).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt)
+		RETURNING id::text, name, email, role, is_banned, created_at::text
+	`, name, email, passwordHash).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.IsBanned, &u.CreatedAt)
 	if err != nil {
 		if strings.Contains(err.Error(), "unique") {
 			return nil, ErrEmailTaken
@@ -38,9 +38,9 @@ func (db *DB) GetUserByEmail(ctx context.Context, email string) (*domain.User, s
 	var u domain.User
 	var hash string
 	err := db.pool.QueryRow(ctx, `
-		SELECT id::text, name, email, role, created_at::text, password_hash
+		SELECT id::text, name, email, role, is_banned, created_at::text, password_hash
 		FROM users WHERE email = $1
-	`, email).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt, &hash)
+	`, email).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.IsBanned, &u.CreatedAt, &hash)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, "", ErrNotFound
 	}
@@ -54,11 +54,11 @@ func (db *DB) GetUserByEmail(ctx context.Context, email string) (*domain.User, s
 func (db *DB) GetUserBySession(ctx context.Context, sessionID string) (*domain.User, error) {
 	var u domain.User
 	err := db.pool.QueryRow(ctx, `
-		SELECT u.id::text, u.name, u.email, u.role, u.created_at::text
+		SELECT u.id::text, u.name, u.email, u.role, u.is_banned, u.created_at::text
 		FROM sessions s
 		JOIN users u ON u.id = s.user_id
 		WHERE s.id = $1 AND s.expires_at > now()
-	`, sessionID).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt)
+	`, sessionID).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.IsBanned, &u.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -72,9 +72,9 @@ func (db *DB) GetUserBySession(ctx context.Context, sessionID string) (*domain.U
 func (db *DB) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
 	var u domain.User
 	err := db.pool.QueryRow(ctx, `
-		SELECT id::text, name, email, role, created_at::text
+		SELECT id::text, name, email, role, is_banned, created_at::text
 		FROM users WHERE id = $1
-	`, userID).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt)
+	`, userID).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.IsBanned, &u.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNotFound
 	}

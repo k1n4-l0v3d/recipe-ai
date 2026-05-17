@@ -27,3 +27,28 @@ func RequireAuth(database *db.DB) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// RequireAdmin validates the session cookie and checks that the user has role="admin".
+func RequireAdmin(database *db.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sessionID, err := c.Cookie("session_id")
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "не авторизован"})
+			return
+		}
+
+		user, err := database.GetUserBySession(c.Request.Context(), sessionID)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "сессия истекла"})
+			return
+		}
+
+		if user.Role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "нет доступа"})
+			return
+		}
+
+		c.Set("user", user)
+		c.Next()
+	}
+}

@@ -76,7 +76,26 @@ type User struct {
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	Role      string `json:"role"`
+	IsBanned  bool   `json:"is_banned"`
 	CreatedAt string `json:"created_at"`
+}
+
+// AdminStats holds aggregate statistics for the admin dashboard.
+type AdminStats struct {
+	TotalUsers     int `json:"total_users"`
+	ActiveSessions int `json:"active_sessions"`
+	TotalFavorites int `json:"total_favorites"`
+	NewUsersWeek   int `json:"new_users_week"`
+}
+
+// SessionInfo is a session record enriched with user details for the admin panel.
+type SessionInfo struct {
+	ID        string `json:"id"`
+	UserID    string `json:"user_id"`
+	UserName  string `json:"user_name"`
+	UserEmail string `json:"user_email"`
+	CreatedAt string `json:"created_at"`
+	ExpiresAt string `json:"expires_at"`
 }
 
 // RecipePreview is a stored reference to a recipe (used in favorites and history).
