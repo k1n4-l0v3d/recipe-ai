@@ -22,6 +22,10 @@ func (m *mockRecipeDetailGenerator) GenerateRecipeList(_ context.Context, _ stri
 	return nil, nil
 }
 
+func (m *mockRecipeDetailGenerator) GenerateRecipeListExcluding(_ context.Context, _ string, _ []string) ([]domain.RecipeSummary, error) {
+	return nil, nil
+}
+
 func (m *mockRecipeDetailGenerator) GenerateRecipe(_ context.Context, _ string) (*domain.Recipe, error) {
 	return m.recipe, m.err
 }
