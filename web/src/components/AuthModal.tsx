@@ -68,19 +68,25 @@ export default function AuthModal({ isOpen, onClose }: Props) {
             }}
           />
 
-          {/* Modal */}
+          {/* Centering wrapper — flexbox, not animated (Framer Motion conflicts with CSS transform) */}
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0 16px',
+            zIndex: 201,
+            pointerEvents: 'none',
+          }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.2 }}
             style={{
-              position: 'fixed',
-              top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
               width: '100%', maxWidth: 420,
-              padding: '0 16px',
-              zIndex: 201,
+              pointerEvents: 'auto',
             }}
           >
             <div style={{
@@ -177,6 +183,7 @@ export default function AuthModal({ isOpen, onClose }: Props) {
               </form>
             </div>
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
