@@ -23,6 +23,7 @@ export default function CategoryGrid({ categories, selectedId, onSelect, loading
             alignItems: 'center',
             gap: 8,
             padding: '10px 18px',
+            minHeight: 44,
             borderRadius: 10,
             border: `1px solid ${selectedId === cat.id ? 'var(--accent)' : 'var(--border-2)'}`,
             background: selectedId === cat.id ? 'var(--accent-glow)' : 'var(--bg-3)',

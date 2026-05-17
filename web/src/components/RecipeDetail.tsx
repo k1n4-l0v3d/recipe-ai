@@ -53,7 +53,7 @@ export default function RecipeDetail({ recipe }: Props) {
         }}>
           {recipe.cuisine} · {recipe.time}
         </div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text)', marginBottom: 8, fontFamily: 'var(--font-heading)', lineHeight: 1.3 }}>
           {recipe.name}
         </h1>
         <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 12 }}>

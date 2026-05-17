@@ -23,7 +23,8 @@ export default function RecipeCard({ recipe, index }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.06, duration: 0.3 }}
-        whileHover={{ y: -4, boxShadow: '0 8px 32px rgba(255,107,53,0.12)', borderColor: 'var(--accent)' }}
+        whileHover={{ y: -4, boxShadow: '0 8px 32px rgba(255,107,53,0.12)' }}
+        whileTap={{ scale: 0.98 }}
         style={{
           background: 'var(--bg-2)',
           border: '1px solid var(--border)',
@@ -33,7 +34,10 @@ export default function RecipeCard({ recipe, index }: Props) {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          transition: 'border-color 0.2s',
         }}
+        onHoverStart={e => (e.target as HTMLElement).style.borderColor = 'var(--accent)'}
+        onHoverEnd={e => (e.target as HTMLElement).style.borderColor = 'var(--border)'}
       >
         {/* Dish image */}
         {imageUrl && (
@@ -48,7 +52,7 @@ export default function RecipeCard({ recipe, index }: Props) {
         )}
 
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6, fontFamily: 'var(--font-heading)', lineHeight: 1.3 }}>
           {recipe.name}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 12, lineHeight: 1.5 }}>

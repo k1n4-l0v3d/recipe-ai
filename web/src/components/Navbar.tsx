@@ -27,8 +27,7 @@ export default function Navbar() {
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text)', textDecoration: 'none' }}>
         <span style={{ fontSize: 22 }}>🔥</span>
-        {!isMobile && <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: 2 }}>ВКУСНО</span>}
-        {isMobile && <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: 2 }}>ВКУСНО</span>}
+        <span style={{ fontWeight: 700, fontSize: isMobile ? 16 : 18, letterSpacing: 2, fontFamily: 'var(--font-heading)' }}>ВКУСНО</span>
       </Link>
 
       <div style={{ display: 'flex', gap: isMobile ? 12 : 24, alignItems: 'center' }}>

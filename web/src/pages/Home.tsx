@@ -6,6 +6,7 @@ import type { Category, RecipeSummary } from '../api/types'
 import CategoryGrid from '../components/CategoryGrid'
 import RecipeCard from '../components/RecipeCard'
 import RouletteWheel from '../components/RouletteWheel'
+import SkeletonCard from '../components/SkeletonCard'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 export default function Home() {
@@ -107,7 +108,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}
+          style={{ fontSize: 'clamp(24px, 5vw, 44px)', fontWeight: 700, color: 'var(--text)', marginBottom: 12, fontFamily: 'var(--font-heading)' }}
         >
           Найди идеальный рецепт
         </motion.h1>
@@ -211,13 +212,15 @@ export default function Home() {
         />
 
         {recipesLoading && (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-3)' }}>
-            <motion.div
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-            >
-              🔥 Генерирую рецепты...
-            </motion.div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 16,
+            marginTop: 32,
+          }}>
+            {Array.from({ length: isMobile ? 3 : 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         )}
 
