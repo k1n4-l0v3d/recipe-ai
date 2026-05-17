@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Recipe } from '../api/types'
 import { usePexelsImage } from '../hooks/usePexelsImage'
+import { useNote } from '../hooks/useNote'
+import { useAuth } from '../context/AuthContext'
 
 interface Props {
   recipe: Recipe
@@ -14,6 +17,10 @@ const difficultyColor: Record<string, string> = {
 
 export default function RecipeDetail({ recipe }: Props) {
   const imageUrl = usePexelsImage(recipe.image_keyword)
+  const { user } = useAuth()
+  const { content, saving, save } = useNote(recipe.id)
+  const [editing, setEditing] = useState(false)
+  const [noteText, setNoteText] = useState('')
 
   return (
     <motion.div
@@ -182,6 +189,81 @@ export default function RecipeDetail({ recipe }: Props) {
               </span>
             )
           })}
+        </div>
+      )}
+      {/* My note — only for logged in users */}
+      {user && (
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 11, letterSpacing: 2, color: 'var(--text-3)', textTransform: 'uppercase' }}>
+              📝 Моя заметка
+            </div>
+            {!editing && (
+              <button
+                onClick={() => { setNoteText(content); setEditing(true) }}
+                style={{
+                  fontSize: 11, color: 'var(--accent)', background: 'none',
+                  border: '1px solid rgba(255,107,53,0.3)', borderRadius: 6,
+                  padding: '4px 10px', cursor: 'pointer', minHeight: 32,
+                }}
+              >
+                {content ? 'Редактировать' : '+ Добавить'}
+              </button>
+            )}
+          </div>
+
+          {editing ? (
+            <div>
+              <textarea
+                value={noteText}
+                onChange={e => setNoteText(e.target.value)}
+                placeholder="Личные заметки к рецепту: замены ингредиентов, время приготовления, советы..."
+                rows={4}
+                autoFocus
+                style={{
+                  width: '100%', padding: '10px 12px', borderRadius: 8, resize: 'vertical',
+                  background: 'var(--bg)', border: '1px solid var(--border-2)',
+                  color: 'var(--text)', fontSize: 13, outline: 'none',
+                  fontFamily: 'inherit', lineHeight: 1.6,
+                }}
+              />
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <button
+                  onClick={async () => { await save(noteText, recipe.name); setEditing(false) }}
+                  disabled={saving}
+                  style={{
+                    background: 'var(--accent)', color: '#fff', border: 'none',
+                    borderRadius: 6, padding: '7px 16px', fontSize: 12,
+                    fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', minHeight: 36,
+                  }}
+                >
+                  {saving ? 'Сохраняю...' : 'Сохранить'}
+                </button>
+                <button
+                  onClick={() => setEditing(false)}
+                  style={{
+                    background: 'none', border: '1px solid var(--border-2)', borderRadius: 6,
+                    padding: '7px 14px', fontSize: 12, color: 'var(--text-3)',
+                    cursor: 'pointer', minHeight: 36,
+                  }}
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
+          ) : content ? (
+            <div style={{
+              background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 8,
+              padding: '10px 12px', fontSize: 13, color: 'var(--text-2)',
+              lineHeight: 1.7, whiteSpace: 'pre-wrap',
+            }}>
+              {content}
+            </div>
+          ) : (
+            <div style={{ fontSize: 12, color: 'var(--text-3)', fontStyle: 'italic' }}>
+              Нет заметок. Нажми «+ Добавить» чтобы записать свои наблюдения.
+            </div>
+          )}
         </div>
       )}
     </motion.div>
