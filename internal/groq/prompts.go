@@ -1,6 +1,9 @@
 package groq
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const systemChatPrompt = `Ты профессиональный кулинарный ассистент. Отвечай ТОЛЬКО на русском языке.
 Ты помогаешь пользователям находить рецепты и отвечаешь на кулинарные вопросы.
@@ -17,7 +20,15 @@ func chatSystemWithContext(recipeCtx string) string {
 }
 
 func categoryListPrompt(categoryName string) string {
-	return fmt.Sprintf(`Сгенерируй список из 8 рецептов в категории "%s".
+	return categoryListPromptWithExclude(categoryName, nil)
+}
+
+func categoryListPromptWithExclude(categoryName string, exclude []string) string {
+	excludePart := ""
+	if len(exclude) > 0 {
+		excludePart = fmt.Sprintf("\nНЕ генерируй эти блюда (они уже показаны): %s.", joinQuoted(exclude))
+	}
+	return fmt.Sprintf(`Сгенерируй список из 8 УНИКАЛЬНЫХ рецептов в категории "%s".%s
 Верни ТОЛЬКО валидный JSON массив (без markdown, без пояснений) в таком формате:
 [
   {
@@ -31,7 +42,15 @@ func categoryListPrompt(categoryName string) string {
 ]
 Difficulty должен быть одним из: "Легко", "Средне", "Сложно".
 Названия и описания на русском языке.
-image_keyword — 1-3 слова на АНГЛИЙСКОМ языке для поиска фотографии этого блюда (например: "pasta carbonara", "borscht soup", "caesar salad").`, categoryName)
+image_keyword — 1-3 слова на АНГЛИЙСКОМ языке для поиска фотографии этого блюда (например: "pasta carbonara", "borscht soup", "caesar salad").`, categoryName, excludePart)
+}
+
+func joinQuoted(items []string) string {
+	out := make([]string, len(items))
+	for i, s := range items {
+		out[i] = `"` + s + `"`
+	}
+	return strings.Join(out, ", ")
 }
 
 func recipeDetailPrompt(recipeName string) string {

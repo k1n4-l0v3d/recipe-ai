@@ -46,8 +46,12 @@ export default function Home() {
     if (!selectedCategory || loadingMore) return
     setLoadingMore(true)
     try {
-      const list = await api.getCategoryRecipes(selectedCategory.id)
-      setRecipes(prev => [...prev, ...list])
+      const currentNames = recipes.map(r => r.name)
+      const list = await api.getCategoryRecipes(selectedCategory.id, currentNames)
+      // Client-side dedup as extra safety net
+      const existingNames = new Set(currentNames.map(n => n.toLowerCase()))
+      const unique = list.filter(r => !existingNames.has(r.name.toLowerCase()))
+      setRecipes(prev => [...prev, ...unique])
     } catch (err) {
       console.error(err)
     } finally {

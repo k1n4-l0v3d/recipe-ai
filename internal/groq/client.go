@@ -39,7 +39,12 @@ func NewClient(apiKey, baseURL string) *Client {
 
 // GenerateRecipeList asks Groq to produce a JSON list of recipes for a category.
 func (c *Client) GenerateRecipeList(ctx context.Context, categoryName string) ([]domain.RecipeSummary, error) {
-	content, err := c.jsonCompletion(ctx, categoryListPrompt(categoryName))
+	return c.GenerateRecipeListExcluding(ctx, categoryName, nil)
+}
+
+// GenerateRecipeListExcluding generates recipes for a category, excluding already-shown names.
+func (c *Client) GenerateRecipeListExcluding(ctx context.Context, categoryName string, exclude []string) ([]domain.RecipeSummary, error) {
+	content, err := c.jsonCompletion(ctx, categoryListPromptWithExclude(categoryName, exclude))
 	if err != nil {
 		return nil, err
 	}

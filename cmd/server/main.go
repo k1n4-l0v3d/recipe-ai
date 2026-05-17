@@ -21,6 +21,9 @@ type recipeGenAdapter struct{ c *groq.Client }
 func (a *recipeGenAdapter) GenerateRecipeList(ctx context.Context, name string) ([]domain.RecipeSummary, error) {
 	return a.c.GenerateRecipeList(ctx, name)
 }
+func (a *recipeGenAdapter) GenerateRecipeListExcluding(ctx context.Context, name string, exclude []string) ([]domain.RecipeSummary, error) {
+	return a.c.GenerateRecipeListExcluding(ctx, name, exclude)
+}
 func (a *recipeGenAdapter) GenerateRecipe(ctx context.Context, name string) (*domain.Recipe, error) {
 	return a.c.GenerateRecipe(ctx, name)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"recipe-ai/internal/domain"
@@ -12,6 +13,7 @@ import (
 // RecipeGenerator is the interface handlers use — decouples them from the Groq client.
 type RecipeGenerator interface {
 	GenerateRecipeList(ctx context.Context, categoryName string) ([]domain.RecipeSummary, error)
+	GenerateRecipeListExcluding(ctx context.Context, categoryName string, exclude []string) ([]domain.RecipeSummary, error)
 	GenerateRecipe(ctx context.Context, dishName string) (*domain.Recipe, error)
 }
 
@@ -23,6 +25,7 @@ func GetCategories() gin.HandlerFunc {
 }
 
 // GetCategoryRecipes generates recipes for the given category via Groq.
+// Accepts optional ?exclude=Name1,Name2 to avoid repeating shown recipes.
 func GetCategoryRecipes(gen RecipeGenerator) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		categoryID := c.Param("id")
@@ -40,7 +43,17 @@ func GetCategoryRecipes(gen RecipeGenerator) gin.HandlerFunc {
 			return
 		}
 
-		recipes, err := gen.GenerateRecipeList(c.Request.Context(), categoryName)
+		// Parse optional exclude list.
+		var exclude []string
+		if raw := c.Query("exclude"); raw != "" {
+			for _, name := range strings.Split(raw, ",") {
+				if name = strings.TrimSpace(name); name != "" {
+					exclude = append(exclude, name)
+				}
+			}
+		}
+
+		recipes, err := gen.GenerateRecipeListExcluding(c.Request.Context(), categoryName, exclude)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

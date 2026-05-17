@@ -19,8 +19,12 @@ export const api = {
   getCategories: (): Promise<Category[]> =>
     get('/categories'),
 
-  getCategoryRecipes: (categoryId: string): Promise<RecipeSummary[]> =>
-    get(`/categories/${categoryId}`),
+  getCategoryRecipes: (categoryId: string, exclude: string[] = []): Promise<RecipeSummary[]> => {
+    const params = exclude.length > 0
+      ? `?exclude=${exclude.map(encodeURIComponent).join(',')}`
+      : ''
+    return get(`/categories/${categoryId}${params}`)
+  },
 
   getRecipe: (recipeId: string): Promise<Recipe> =>
     get(`/recipes/${encodeURIComponent(recipeId)}`),
