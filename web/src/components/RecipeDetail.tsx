@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import type { Recipe } from '../api/types'
+import { usePexelsImage } from '../hooks/usePexelsImage'
 
 interface Props {
   recipe: Recipe
@@ -12,6 +13,8 @@ const difficultyColor: Record<string, string> = {
 }
 
 export default function RecipeDetail({ recipe }: Props) {
+  const imageUrl = usePexelsImage(recipe.image_keyword)
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -20,7 +23,7 @@ export default function RecipeDetail({ recipe }: Props) {
       style={{ height: '100%', overflowY: 'auto', padding: 24 }}
     >
       {/* Hero image */}
-      {recipe.image_keyword && (
+      {imageUrl && (
         <div style={{
           width: '100%',
           height: 220,
@@ -31,7 +34,7 @@ export default function RecipeDetail({ recipe }: Props) {
           flexShrink: 0,
         }}>
           <img
-            src={`https://loremflickr.com/800/440/${encodeURIComponent(recipe.image_keyword)},food`}
+            src={imageUrl}
             alt={recipe.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }}

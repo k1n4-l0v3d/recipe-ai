@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import type { RecipeSummary } from '../api/types'
+import { usePexelsImage } from '../hooks/usePexelsImage'
 
 interface Props {
   recipe: RecipeSummary
@@ -14,6 +15,8 @@ const difficultyColor: Record<string, string> = {
 }
 
 export default function RecipeCard({ recipe, index }: Props) {
+  const imageUrl = usePexelsImage(recipe.image_keyword)
+
   return (
     <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', display: 'block' }}>
       <motion.div
@@ -33,10 +36,10 @@ export default function RecipeCard({ recipe, index }: Props) {
         }}
       >
         {/* Dish image */}
-        {recipe.image_keyword && (
+        {imageUrl && (
           <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', flexShrink: 0, background: 'var(--bg-3)' }}>
             <img
-              src={`https://loremflickr.com/400/225/${encodeURIComponent(recipe.image_keyword)},food`}
+              src={imageUrl}
               alt={recipe.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
               onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }}

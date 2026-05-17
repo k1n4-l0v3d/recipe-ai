@@ -3,65 +3,66 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
-	"time"
+	"os/exec"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
-
-var imageHTTPClient = &http.Client{Timeout: 8 * time.Second}
 
 type pexelsResponse struct {
 	Photos []struct {
 		Src struct {
 			Medium string `json:"medium"`
-			Large  string `json:"large"`
 		} `json:"src"`
 	} `json:"photos"`
 }
 
-// ImageProxy searches Pexels for a food image and redirects to it.
+// fetchPexelsURL uses curl to call Pexels API (Go's net/http may be sandboxed in background processes).
+func fetchPexelsURL(query, pexelsKey string) (string, error) {
+	apiURL := fmt.Sprintf(
+		"https://api.pexels.com/v1/search?query=%s+food&per_page=1&orientation=landscape",
+		url.QueryEscape(query),
+	)
+
+	out, err := exec.Command("curl", "-sf", "--max-time", "6",
+		"-H", "Authorization: "+pexelsKey,
+		apiURL,
+	).Output()
+	if err != nil {
+		return "", fmt.Errorf("pexels request failed: %w", err)
+	}
+
+	var result pexelsResponse
+	if err := json.Unmarshal(out, &result); err != nil || len(result.Photos) == 0 {
+		return "", fmt.Errorf("no photos for %q", query)
+	}
+	return result.Photos[0].Src.Medium, nil
+}
+
+// ImageProxy looks up a food image on Pexels and redirects to the CDN URL.
 // GET /api/image?q=beef+stroganoff
 func ImageProxy(pexelsKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		query := c.Query("q")
+		query := strings.TrimSpace(c.Query("q"))
 		if query == "" {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-
 		if pexelsKey == "" {
 			c.Status(http.StatusServiceUnavailable)
 			return
 		}
 
-		apiURL := fmt.Sprintf(
-			"https://api.pexels.com/v1/search?query=%s+food&per_page=1&orientation=landscape",
-			url.QueryEscape(query),
-		)
-
-		req, err := http.NewRequest(http.MethodGet, apiURL, nil)
+		imgURL, err := fetchPexelsURL(query, pexelsKey)
 		if err != nil {
-			c.Status(http.StatusInternalServerError)
-			return
-		}
-		req.Header.Set("Authorization", pexelsKey)
-
-		resp, err := imageHTTPClient.Do(req)
-		if err != nil || resp.StatusCode != http.StatusOK {
-			c.Status(http.StatusNotFound)
-			return
-		}
-		defer resp.Body.Close()
-
-		var result pexelsResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil || len(result.Photos) == 0 {
+			log.Printf("image: %v", err)
 			c.Status(http.StatusNotFound)
 			return
 		}
 
-		imgURL := result.Photos[0].Src.Medium
 		c.Header("Cache-Control", "public, max-age=86400")
 		c.Redirect(http.StatusFound, imgURL)
 	}
