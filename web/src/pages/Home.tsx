@@ -13,6 +13,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [recipes, setRecipes] = useState<RecipeSummary[]>([])
   const [recipesLoading, setRecipesLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const recipesRef = useRef<HTMLDivElement>(null)
 
@@ -38,6 +39,19 @@ export default function Home() {
       console.error(err)
     } finally {
       setRecipesLoading(false)
+    }
+  }
+
+  const handleLoadMore = async () => {
+    if (!selectedCategory || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const list = await api.getCategoryRecipes(selectedCategory.id)
+      setRecipes(prev => [...prev, ...list])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -218,8 +232,43 @@ export default function Home() {
               gap: 16,
             }}>
               {recipes.map((r, i) => (
-                <RecipeCard key={r.id} recipe={r} index={i} />
+                <RecipeCard key={`${r.id}-${i}`} recipe={r} index={i} />
               ))}
+            </div>
+
+            {/* Load more button */}
+            <div style={{ textAlign: 'center', marginTop: 32 }}>
+              {loadingMore ? (
+                <motion.div
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  style={{ color: 'var(--text-3)', fontSize: 14 }}
+                >
+                  🔥 Генерирую ещё рецепты...
+                </motion.div>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleLoadMore}
+                  style={{
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--border-2)',
+                    borderRadius: 24,
+                    padding: '12px 32px',
+                    color: 'var(--accent)',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    letterSpacing: 1,
+                    transition: 'border-color 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-2)')}
+                >
+                  Ещё рецепты →
+                </motion.button>
+              )}
             </div>
           </>
         )}
