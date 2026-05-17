@@ -7,10 +7,12 @@ import (
 )
 
 type Config struct {
-	GroqAPIKey   string
-	TavilyAPIKey string
-	PexelsAPIKey string
-	Port         string
+	GroqAPIKey    string
+	TavilyAPIKey  string
+	PexelsAPIKey  string
+	DatabaseURL   string
+	SessionSecret string
+	Port          string
 }
 
 func Load() *Config {
@@ -22,9 +24,11 @@ func Load() *Config {
 	}
 
 	return &Config{
-		GroqAPIKey:   os.Getenv("GROQ_API_KEY"),
-		TavilyAPIKey: os.Getenv("TAVILY_API_KEY"),
-		PexelsAPIKey: os.Getenv("PEXELS_API_KEY"),
-		Port:         port,
+		GroqAPIKey:    os.Getenv("GROQ_API_KEY"),
+		TavilyAPIKey:  os.Getenv("TAVILY_API_KEY"),
+		PexelsAPIKey:  os.Getenv("PEXELS_API_KEY"),
+		DatabaseURL:   os.Getenv("DATABASE_URL"),
+		SessionSecret: os.Getenv("SESSION_SECRET"),
+		Port:          port,
 	}
 }
