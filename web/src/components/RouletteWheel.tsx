@@ -19,13 +19,19 @@ const SPIN_EASING = [0.17, 0.67, 0.12, 0.99] as const
 const SPIN_DURATION = 3 // seconds
 const MIN_ROTATIONS = 4 // full turns before stopping
 
-function calcTotalRotation(winnerIndex: number, total: number): number {
+// Arrow is fixed at top (0° in our clockwise-from-top coords).
+// After rotating CW by R, sector at initial angle α ends up at (α + R) % 360.
+// We want sector winnerCenter at 0° (top), so we need (winnerCenter + R) % 360 = 0,
+// i.e. R = (360 - winnerCenter) % 360.
+// We also account for currentRotation so repeated spins stay accurate.
+function calcDelta(winnerIndex: number, total: number, currentRotation: number): number {
   const sectorAngle = 360 / total
-  const winnerAngle = winnerIndex * sectorAngle
-  const centerOffset = sectorAngle / 2
-  // Arrow is at top (270° in standard coords). Rotate so winner centre aligns with it.
-  const targetAngle = (360 - (winnerAngle + centerOffset) + 270) % 360
-  return MIN_ROTATIONS * 360 + targetAngle
+  const winnerCenter = winnerIndex * sectorAngle + sectorAngle / 2
+  const targetFinalAngle = (360 - winnerCenter) % 360
+  const currentAngle = ((currentRotation % 360) + 360) % 360
+  let delta = targetFinalAngle - currentAngle
+  if (delta < 0) delta += 360
+  return MIN_ROTATIONS * 360 + delta
 }
 
 type SpinState = 'idle' | 'spinning' | 'result'
@@ -43,7 +49,7 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
 
     // Pick winner before animation so angle calculation is deterministic
     const winnerIndex = Math.floor(Math.random() * categories.length)
-    const delta = calcTotalRotation(winnerIndex, categories.length)
+    const delta = calcDelta(winnerIndex, categories.length, currentRotation.current)
     const nextRotation = currentRotation.current + delta
 
     setSpinState('spinning')

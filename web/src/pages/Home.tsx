@@ -152,28 +152,24 @@ export default function Home() {
             </button>
           </div>
         </motion.form>
-      </div>
 
-      {/* Roulette block */}
-      {categories.length >= 2 && (
-        <div style={{
-          padding: '0 24px 48px',
-          textAlign: 'center',
-          background: 'linear-gradient(180deg, rgba(255,107,53,0.03) 0%, transparent 100%)',
-        }}>
-          <div style={{ fontSize: 11, letterSpacing: 3, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 6 }}>
-            Не знаешь что приготовить?
+        {/* Roulette — inside hero for seamless background */}
+        {categories.length >= 2 && (
+          <div style={{ marginTop: 48 }}>
+            <div style={{ fontSize: 11, letterSpacing: 3, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 6 }}>
+              Не знаешь что приготовить?
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 24 }}>
+              Испытай удачу 🎡
+            </div>
+            <RouletteWheel
+              categories={categories}
+              onResult={handleRouletteResult}
+              disabled={recipesLoading}
+            />
           </div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 24 }}>
-            Испытай удачу 🎡
-          </div>
-          <RouletteWheel
-            categories={categories}
-            onResult={handleRouletteResult}
-            disabled={recipesLoading}
-          />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Categories + Recipes */}
       <div ref={recipesRef} style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px 48px' }}>
