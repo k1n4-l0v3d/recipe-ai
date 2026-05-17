@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import Home from './pages/Home'
 import Recipe from './pages/Recipe'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 import Navbar from './components/Navbar'
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/recipe/:id" element={<Recipe />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </AnimatePresence>
     </BrowserRouter>

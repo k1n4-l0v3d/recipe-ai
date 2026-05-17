@@ -43,7 +43,24 @@ export interface User {
   name: string
   email: string
   role: 'user' | 'admin'
+  is_banned: boolean
   created_at: string
+}
+
+export interface AdminStats {
+  total_users: number
+  active_sessions: number
+  total_favorites: number
+  new_users_week: number
+}
+
+export interface SessionInfo {
+  id: string
+  user_id: string
+  user_name: string
+  user_email: string
+  created_at: string
+  expires_at: string
 }
 
 export interface RecipePreview {
