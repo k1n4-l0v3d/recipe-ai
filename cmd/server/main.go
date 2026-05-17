@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	openai "github.com/sashabaranov/go-openai"
+	"recipe-ai/internal/auth"
 	"recipe-ai/internal/config"
 	"recipe-ai/internal/db"
 	"recipe-ai/internal/domain"
@@ -107,6 +108,29 @@ func main() {
 				authGroup.POST("/login", authHandler.Login)
 				authGroup.POST("/logout", authHandler.Logout)
 				authGroup.GET("/me", authHandler.Me)
+			}
+
+			// Cabinet routes (all require auth)
+			cabinetHandler := handlers.NewCabinetHandler(database)
+			cabinetAuth := apiGroup.Group("")
+			cabinetAuth.Use(auth.RequireAuth(database))
+			{
+				cabinetAuth.PUT("/profile/name", cabinetHandler.UpdateName)
+				cabinetAuth.PUT("/profile/password", cabinetHandler.UpdatePassword)
+
+				cabinetAuth.GET("/favorites", cabinetHandler.GetFavorites)
+				cabinetAuth.POST("/favorites", cabinetHandler.AddFavorite)
+				cabinetAuth.DELETE("/favorites/:id", cabinetHandler.RemoveFavorite)
+				cabinetAuth.GET("/favorites/:id/check", cabinetHandler.CheckFavorite)
+
+				cabinetAuth.GET("/history", cabinetHandler.GetHistory)
+				cabinetAuth.POST("/history", cabinetHandler.AddHistory)
+				cabinetAuth.DELETE("/history", cabinetHandler.ClearHistory)
+
+				cabinetAuth.GET("/notes", cabinetHandler.GetAllNotes)
+				cabinetAuth.GET("/notes/:recipe_id", cabinetHandler.GetNote)
+				cabinetAuth.PUT("/notes/:recipe_id", cabinetHandler.UpsertNote)
+				cabinetAuth.DELETE("/notes/:recipe_id", cabinetHandler.DeleteNote)
 			}
 		}
 

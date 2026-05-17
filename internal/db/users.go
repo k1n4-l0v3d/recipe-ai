@@ -67,3 +67,19 @@ func (db *DB) GetUserBySession(ctx context.Context, sessionID string) (*domain.U
 	}
 	return &u, nil
 }
+
+// GetUserByID returns the user by UUID.
+func (db *DB) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
+	var u domain.User
+	err := db.pool.QueryRow(ctx, `
+		SELECT id::text, name, email, role, created_at::text
+		FROM users WHERE id = $1
+	`, userID).Scan(&u.ID, &u.Name, &u.Email, &u.Role, &u.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("db: get user by id: %w", err)
+	}
+	return &u, nil
+}

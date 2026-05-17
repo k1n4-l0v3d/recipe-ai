@@ -78,3 +78,20 @@ type User struct {
 	Role      string `json:"role"`
 	CreatedAt string `json:"created_at"`
 }
+
+// RecipePreview is a stored reference to a recipe (used in favorites and history).
+type RecipePreview struct {
+	RecipeID     string `json:"recipe_id"`
+	RecipeName   string `json:"recipe_name"`
+	ImageKeyword string `json:"image_keyword"`
+	AddedAt      string `json:"added_at,omitempty"`
+	ViewedAt     string `json:"viewed_at,omitempty"`
+}
+
+// Note is a user's personal note attached to a recipe.
+type Note struct {
+	RecipeID   string `json:"recipe_id"`
+	RecipeName string `json:"recipe_name"`
+	Content    string `json:"content"`
+	UpdatedAt  string `json:"updated_at"`
+}
