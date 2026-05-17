@@ -5,14 +5,19 @@ import { api } from '../api/client'
 import type { Recipe as RecipeType } from '../api/types'
 import RecipeDetail from '../components/RecipeDetail'
 import ChatPanel from '../components/ChatPanel'
+import FavoriteButton from '../components/FavoriteButton'
 import { useChat } from '../hooks/useChat'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useHistory } from '../hooks/useHistory'
+import { useAuth } from '../context/AuthContext'
 
 export default function Recipe() {
   const { id } = useParams<{ id: string }>()
   const [recipe, setRecipe] = useState<RecipeType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
+  const { addToHistory } = useHistory()
   const isMobile = useIsMobile()
 
   useEffect(() => {
@@ -24,6 +29,13 @@ export default function Recipe() {
       .catch(() => setError('Не удалось загрузить рецепт'))
       .finally(() => setLoading(false))
   }, [id])
+
+  // Record view in history when recipe loads
+  useEffect(() => {
+    if (recipe && user) {
+      addToHistory(recipe.id, recipe.name, recipe.image_keyword ?? '')
+    }
+  }, [recipe?.id, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { messages, isStreaming, sources, sendMessage } = useChat({
     recipeContext: recipe ? `${recipe.name} (${recipe.cuisine})` : '',
@@ -66,11 +78,23 @@ export default function Recipe() {
         maxHeight: isMobile ? 'none' : 'calc(100vh - 56px)',
       }}
     >
-      {/* Back link */}
-      <div style={{ padding: isMobile ? '10px 16px' : '12px 24px', borderBottom: '1px solid var(--border)' }}>
-        <Link to="/" style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', alignItems: 'center', gap: 4 }}>
+      {/* Back link + Favorite button */}
+      <div style={{
+        padding: isMobile ? '10px 16px' : '12px 24px',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 12,
+      }}>
+        <Link to="/" style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           ← Все рецепты
         </Link>
+        {recipe && (
+          <FavoriteButton
+            recipeId={recipe.id}
+            recipeName={recipe.name}
+            imageKeyword={recipe.image_keyword}
+          />
+        )}
       </div>
 
       {isMobile ? (
