@@ -12,15 +12,18 @@ import (
 
 var imageHTTPClient = &http.Client{Timeout: 8 * time.Second}
 
-type mealDBResponse struct {
-	Meals []struct {
-		Thumb string `json:"strMealThumb"`
-	} `json:"meals"`
+type pexelsResponse struct {
+	Photos []struct {
+		Src struct {
+			Medium string `json:"medium"`
+			Large  string `json:"large"`
+		} `json:"src"`
+	} `json:"photos"`
 }
 
-// ImageProxy searches TheMealDB for a food image and redirects to it.
-// GET /api/image?q=pasta+carbonara
-func ImageProxy() gin.HandlerFunc {
+// ImageProxy searches Pexels for a food image and redirects to it.
+// GET /api/image?q=beef+stroganoff
+func ImageProxy(pexelsKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		query := c.Query("q")
 		if query == "" {
@@ -28,48 +31,38 @@ func ImageProxy() gin.HandlerFunc {
 			return
 		}
 
+		if pexelsKey == "" {
+			c.Status(http.StatusServiceUnavailable)
+			return
+		}
+
 		apiURL := fmt.Sprintf(
-			"https://www.themealdb.com/api/json/v1/1/search.php?s=%s",
+			"https://api.pexels.com/v1/search?query=%s+food&per_page=1&orientation=landscape",
 			url.QueryEscape(query),
 		)
 
-		resp, err := imageHTTPClient.Get(apiURL)
+		req, err := http.NewRequest(http.MethodGet, apiURL, nil)
+		if err != nil {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+		req.Header.Set("Authorization", pexelsKey)
+
+		resp, err := imageHTTPClient.Do(req)
 		if err != nil || resp.StatusCode != http.StatusOK {
 			c.Status(http.StatusNotFound)
 			return
 		}
 		defer resp.Body.Close()
 
-		var result mealDBResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil || len(result.Meals) == 0 {
-			// Fallback: search with first word only
-			if idx := len(query); idx > 0 {
-				for i, ch := range query {
-					if ch == ' ' {
-						idx = i
-						break
-					}
-				}
-				fallbackURL := fmt.Sprintf(
-					"https://www.themealdb.com/api/json/v1/1/search.php?s=%s",
-					url.QueryEscape(query[:idx]),
-				)
-				resp2, err2 := imageHTTPClient.Get(fallbackURL)
-				if err2 == nil && resp2.StatusCode == http.StatusOK {
-					defer resp2.Body.Close()
-					var result2 mealDBResponse
-					if json.NewDecoder(resp2.Body).Decode(&result2) == nil && len(result2.Meals) > 0 {
-						c.Header("Cache-Control", "public, max-age=86400")
-						c.Redirect(http.StatusFound, result2.Meals[0].Thumb)
-						return
-					}
-				}
-			}
+		var result pexelsResponse
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil || len(result.Photos) == 0 {
 			c.Status(http.StatusNotFound)
 			return
 		}
 
+		imgURL := result.Photos[0].Src.Medium
 		c.Header("Cache-Control", "public, max-age=86400")
-		c.Redirect(http.StatusFound, result.Meals[0].Thumb)
+		c.Redirect(http.StatusFound, imgURL)
 	}
 }
