@@ -121,7 +121,7 @@ export default function Navbar() {
                     }}>
                       👤 Личный кабинет
                     </Link>
-                    <Link to="/favorites" onClick={() => setDropdownOpen(false)} style={{
+                    <Link to="/profile#favorites" onClick={() => setDropdownOpen(false)} style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '10px 16px', fontSize: 13, color: 'var(--text-2)', textDecoration: 'none',
                     }}>
