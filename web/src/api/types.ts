@@ -38,6 +38,14 @@ export interface ChatMessage {
   content: string
 }
 
+export interface User {
+  id: string
+  name: string
+  email: string
+  role: 'user' | 'admin'
+  created_at: string
+}
+
 export interface SSEEvent {
   type: 'token' | 'searching' | 'sources' | 'done' | 'error'
   content?: string

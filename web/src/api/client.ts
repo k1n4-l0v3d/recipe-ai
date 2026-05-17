@@ -1,11 +1,24 @@
-import type { Category, Recipe, RecipeSummary } from './types'
+import type { Category, Recipe, RecipeSummary, User } from './types'
 
 const BASE = '/api'
 
+// All requests include credentials so the session cookie is sent automatically.
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`)
+  const res = await fetch(`${BASE}${path}`, { credentials: 'include' })
   if (!res.ok) throw new Error(`API error ${res.status}: ${path}`)
   return res.json()
+}
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(body),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error ?? `API error ${res.status}`)
+  return data
 }
 
 // Encode a dish name as URL-safe base64, matching Go's base64.URLEncoding.EncodeToString([]byte(name)).
@@ -28,4 +41,24 @@ export const api = {
 
   getRecipe: (recipeId: string): Promise<Recipe> =>
     get(`/recipes/${encodeURIComponent(recipeId)}`),
+}
+
+export const authApi = {
+  register: (name: string, email: string, password: string) =>
+    post<{ user: User }>('/auth/register', { name, email, password }),
+
+  login: (email: string, password: string) =>
+    post<{ user: User }>('/auth/login', { email, password }),
+
+  logout: () =>
+    post<{ ok: boolean }>('/auth/logout', {}),
+
+  me: async (): Promise<User | null> => {
+    try {
+      const data = await get<{ user: User }>('/auth/me')
+      return data.user
+    } catch {
+      return null
+    }
+  },
 }
