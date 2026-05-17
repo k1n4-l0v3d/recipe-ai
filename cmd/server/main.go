@@ -79,6 +79,7 @@ func main() {
 		api.GET("/categories/:id", handlers.GetCategoryRecipes(&recipeGenAdapter{groqClient}))
 		api.GET("/recipes/:id", handlers.GetRecipe(&recipeGenAdapter{groqClient}))
 		api.POST("/chat", handlers.ChatSSE(&chatGroqAdapter{groqClient}, &tavilyAdapter{tavilyClient}))
+		api.GET("/image", handlers.ImageProxy())
 	}
 
 	// Serve static assets from the React build.
