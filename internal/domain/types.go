@@ -9,12 +9,13 @@ type Category struct {
 
 // RecipeSummary is a brief recipe entry in a category list.
 type RecipeSummary struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Time        string   `json:"time"`
-	Difficulty  string   `json:"difficulty"`
-	Tags        []string `json:"tags"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Description  string   `json:"description"`
+	Time         string   `json:"time"`
+	Difficulty   string   `json:"difficulty"`
+	Tags         []string `json:"tags"`
+	ImageKeyword string   `json:"image_keyword,omitempty"`
 }
 
 // Ingredient is a single ingredient with amount.
@@ -25,16 +26,17 @@ type Ingredient struct {
 
 // Recipe is a full recipe with all details.
 type Recipe struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Cuisine     string       `json:"cuisine"`
-	Time        string       `json:"time"`
-	Difficulty  string       `json:"difficulty"`
-	Tags        []string     `json:"tags"`
-	Ingredients []Ingredient `json:"ingredients"`
-	Steps       []string     `json:"steps"`
-	Description string       `json:"description"`
-	Sources     []string     `json:"sources"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Cuisine      string       `json:"cuisine"`
+	Time         string       `json:"time"`
+	Difficulty   string       `json:"difficulty"`
+	Tags         []string     `json:"tags"`
+	Ingredients  []Ingredient `json:"ingredients"`
+	Steps        []string     `json:"steps"`
+	Description  string       `json:"description"`
+	Sources      []string     `json:"sources"`
+	ImageKeyword string       `json:"image_keyword,omitempty"`
 }
 
 // ChatMessage is one message in a conversation.

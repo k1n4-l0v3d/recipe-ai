@@ -11,6 +11,7 @@ export interface RecipeSummary {
   time: string
   difficulty: string
   tags: string[]
+  image_keyword?: string
 }
 
 export interface Ingredient {
@@ -29,6 +30,7 @@ export interface Recipe {
   steps: string[]
   description: string
   sources: string[]
+  image_keyword?: string
 }
 
 export interface ChatMessage {

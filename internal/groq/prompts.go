@@ -25,11 +25,13 @@ func categoryListPrompt(categoryName string) string {
     "description": "Краткое описание в 1 предложении",
     "time": "30 мин",
     "difficulty": "Легко",
-    "tags": ["тег1", "тег2"]
+    "tags": ["тег1", "тег2"],
+    "image_keyword": "greek salad"
   }
 ]
 Difficulty должен быть одним из: "Легко", "Средне", "Сложно".
-Названия и описания на русском языке.`, categoryName)
+Названия и описания на русском языке.
+image_keyword — 1-3 слова на АНГЛИЙСКОМ языке для поиска фотографии этого блюда (например: "pasta carbonara", "borscht soup", "caesar salad").`, categoryName)
 }
 
 func recipeDetailPrompt(recipeName string) string {
@@ -42,6 +44,7 @@ func recipeDetailPrompt(recipeName string) string {
   "difficulty": "Средне",
   "description": "Описание блюда в 2 предложениях",
   "tags": ["тег1", "тег2"],
+  "image_keyword": "paella seafood",
   "ingredients": [
     {"name": "Ингредиент", "amount": "200г"}
   ],
@@ -51,5 +54,6 @@ func recipeDetailPrompt(recipeName string) string {
   ]
 }
 Difficulty должен быть одним из: "Легко", "Средне", "Сложно".
-Всё на русском языке. Ингредиентов 5-12, шагов 4-10.`, recipeName)
+Всё на русском языке. Ингредиентов 5-12, шагов 4-10.
+image_keyword — 1-3 слова на АНГЛИЙСКОМ языке для поиска фотографии этого блюда (например: "beef stew", "chocolate cake", "fish tacos").`, recipeName)
 }

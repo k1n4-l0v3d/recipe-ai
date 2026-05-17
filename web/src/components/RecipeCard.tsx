@@ -33,14 +33,16 @@ export default function RecipeCard({ recipe, index }: Props) {
         }}
       >
         {/* Dish image */}
-        <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', flexShrink: 0, background: 'var(--bg-3)' }}>
-          <img
-            src={`https://source.unsplash.com/featured/400x225/?${encodeURIComponent(recipe.name)},food`}
-            alt={recipe.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-          />
-        </div>
+        {recipe.image_keyword && (
+          <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', flexShrink: 0, background: 'var(--bg-3)' }}>
+            <img
+              src={`https://loremflickr.com/400/225/${encodeURIComponent(recipe.image_keyword)},food`}
+              alt={recipe.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }}
+            />
+          </div>
+        )}
 
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>
