@@ -3,6 +3,13 @@ import { Link, useLocation } from 'react-router-dom'
 export default function Navbar() {
   const location = useLocation()
 
+  const handleRecipesClick = (e: React.MouseEvent) => {
+    if (location.pathname === '/') {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
     <nav style={{
       background: 'var(--bg-2)',
@@ -24,6 +31,7 @@ export default function Navbar() {
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
         <Link
           to="/"
+          onClick={handleRecipesClick}
           style={{
             fontSize: 13,
             color: location.pathname === '/' ? 'var(--accent)' : 'var(--text-2)',
