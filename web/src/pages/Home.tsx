@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { api, encodeRecipeId } from '../api/client'
 import type { Category, RecipeSummary } from '../api/types'
 import CategoryGrid from '../components/CategoryGrid'
 import RecipeCard from '../components/RecipeCard'
+import RouletteWheel from '../components/RouletteWheel'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -13,6 +14,14 @@ export default function Home() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>([])
   const [recipesLoading, setRecipesLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const recipesRef = useRef<HTMLDivElement>(null)
+
+  const handleRouletteResult = (cat: Category) => {
+    handleCategorySelect(cat)
+    setTimeout(() => {
+      recipesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 300)
+  }
 
   useEffect(() => {
     api.getCategories().then(setCategories).catch(console.error)
@@ -145,8 +154,29 @@ export default function Home() {
         </motion.form>
       </div>
 
+      {/* Roulette block */}
+      {categories.length >= 2 && (
+        <div style={{
+          padding: '0 24px 48px',
+          textAlign: 'center',
+          background: 'linear-gradient(180deg, rgba(255,107,53,0.03) 0%, transparent 100%)',
+        }}>
+          <div style={{ fontSize: 11, letterSpacing: 3, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 6 }}>
+            Не знаешь что приготовить?
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 24 }}>
+            Испытай удачу 🎡
+          </div>
+          <RouletteWheel
+            categories={categories}
+            onResult={handleRouletteResult}
+            disabled={recipesLoading}
+          />
+        </div>
+      )}
+
       {/* Categories + Recipes */}
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px 48px' }}>
+      <div ref={recipesRef} style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px 48px' }}>
         <div style={{
           fontSize: 11,
           letterSpacing: 2,
@@ -154,7 +184,7 @@ export default function Home() {
           textTransform: 'uppercase',
           marginBottom: 14,
         }}>
-          Категории
+          Или выбери сам
         </div>
 
         <CategoryGrid
