@@ -66,123 +66,253 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
   const handleLoadMore = () => handleSearch(exclude)
 
   const chipStyle = (active: boolean): React.CSSProperties => ({
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
-    gap: 6,
-    padding: '7px 14px',
+    gap: 5,
+    padding: '7px 13px',
     minHeight: 36,
     borderRadius: 20,
-    border: `1px solid ${active ? 'var(--accent)' : 'var(--border-2)'}`,
-    background: active ? 'var(--accent-glow)' : 'var(--bg-3)',
+    border: `1px solid ${active ? 'var(--accent)' : 'rgba(255,255,255,0.08)'}`,
+    background: active ? 'rgba(255,107,53,0.18)' : 'rgba(255,255,255,0.04)',
     color: active ? 'var(--accent)' : 'var(--text-2)',
     fontSize: 13,
     fontWeight: active ? 600 : 400,
     cursor: loading ? 'wait' : 'pointer',
-    transition: 'all 0.2s',
+    transition: 'all 0.18s',
+    touchAction: 'manipulation',
   })
 
   const inputStyle: React.CSSProperties = {
-    padding: '8px 14px',
+    padding: '9px 16px',
     borderRadius: 20,
-    border: '1px solid var(--border-2)',
-    background: 'var(--bg-3)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    background: 'rgba(255,255,255,0.06)',
     color: 'var(--text)',
     fontSize: 13,
     outline: 'none',
     width: 200,
+    minHeight: 36,
   }
 
   return (
-    <div style={{ marginTop: 32 }}>
-      <div style={{ fontSize: 11, letterSpacing: 2, color: 'var(--text-3)', textTransform: 'uppercase', marginBottom: 14 }}>
-        Подбери по составу
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.1 }}
+      style={{
+        marginTop: 32,
+        background: 'linear-gradient(135deg, #131313 0%, #0f0f0f 100%)',
+        border: '1px solid rgba(255,107,53,0.2)',
+        borderRadius: 16,
+        overflow: 'hidden',
+        boxShadow: '0 0 0 1px rgba(255,107,53,0.05), 0 8px 32px rgba(0,0,0,0.4)',
+      }}
+    >
+      {/* Accent top bar */}
+      <div style={{
+        height: 3,
+        background: 'linear-gradient(90deg, #ff6b35 0%, #ff4500 50%, transparent 100%)',
+      }} />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-        {/* Основное блюдо */}
-        <div>
-          <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 8 }}>Основное блюдо</div>
-          {mainCustom ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input autoFocus value={mainText} onChange={e => setMainText(e.target.value)} placeholder="Введите продукт..." style={inputStyle} />
-              <button onClick={() => { setMainCustom(false); setMainText('') }}
-                style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>×</button>
+      <div style={{ padding: '20px 24px 24px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: 'rgba(255,107,53,0.15)',
+            border: '1px solid rgba(255,107,53,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18, flexShrink: 0,
+          }}>
+            🎯
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-heading)', lineHeight: 1.2 }}>
+              Подбери по составу
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {MAIN_OPTIONS.map(opt => (
-                <motion.button key={opt.label} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => setSelectedMain(prev => prev === opt.label ? '' : opt.label)}
-                  style={chipStyle(selectedMain === opt.label)}>
-                  <span>{opt.emoji}</span> {opt.label}
-                </motion.button>
-              ))}
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => { setMainCustom(true); setSelectedMain('') }}
-                style={chipStyle(false)}>
-                ✏️ Другое
-              </motion.button>
+            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>
+              Выбери ингредиент — AI найдёт рецепты
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Гарнир */}
-        <div>
-          <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 8 }}>Гарнир</div>
-          {sideCustom ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input autoFocus value={sideText} onChange={e => setSideText(e.target.value)} placeholder="Введите гарнир..." style={inputStyle} />
-              <button onClick={() => { setSideCustom(false); setSideText('') }}
-                style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>×</button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {SIDE_OPTIONS.map(opt => (
-                <motion.button key={opt.label} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => setSelectedSide(prev => prev === opt.label ? '' : opt.label)}
-                  style={chipStyle(selectedSide === opt.label)}>
-                  <span>{opt.emoji}</span> {opt.label}
-                </motion.button>
-              ))}
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => { setSideCustom(true); setSelectedSide('') }}
-                style={chipStyle(false)}>
-                ✏️ Другое
-              </motion.button>
-            </div>
-          )}
-        </div>
+        {/* Sections */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-        {/* Кнопки */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, alignItems: 'center' }}>
-          {hasResults && !loading && (
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleLoadMore}
-              style={{
-                background: 'var(--bg-2)', border: '1px solid var(--border-2)',
-                borderRadius: 24, padding: '10px 24px',
-                color: 'var(--accent)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              }}>
-              Ещё рецепты →
-            </motion.button>
-          )}
-          <motion.button
-            whileHover={canSearch ? { scale: 1.03 } : {}}
-            whileTap={canSearch ? { scale: 0.97 } : {}}
-            onClick={() => { setExclude([]); setHasResults(false); onNewSearch(); handleSearch([]) }}
-            disabled={!canSearch || loading}
-            style={{
-              background: canSearch ? 'var(--accent)' : 'var(--bg-3)',
-              border: 'none', borderRadius: 24, padding: '10px 28px',
-              color: canSearch ? '#fff' : 'var(--text-3)',
-              fontSize: 13, fontWeight: 600,
-              cursor: canSearch && !loading ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s',
-              boxShadow: canSearch ? '0 0 16px rgba(255,107,53,0.3)' : 'none',
+          {/* Основное блюдо */}
+          <div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
             }}>
-            {loading ? 'Ищу...' : 'Найти рецепты →'}
-          </motion.button>
+              <div style={{
+                width: 4, height: 14, borderRadius: 2,
+                background: 'var(--accent)', flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 11, color: 'var(--text-2)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                Основное блюдо
+              </span>
+              {effectiveMain && (
+                <span style={{
+                  fontSize: 11, color: 'var(--accent)',
+                  background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.2)',
+                  padding: '2px 8px', borderRadius: 10,
+                }}>
+                  {effectiveMain}
+                </span>
+              )}
+            </div>
+
+            {mainCustom ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  autoFocus
+                  value={mainText}
+                  onChange={e => setMainText(e.target.value)}
+                  placeholder="Введите продукт..."
+                  style={inputStyle}
+                />
+                <button
+                  onClick={() => { setMainCustom(false); setMainText('') }}
+                  aria-label="Вернуться к списку"
+                  style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 8px' }}
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {MAIN_OPTIONS.map(opt => (
+                  <motion.button
+                    key={opt.label}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedMain(prev => prev === opt.label ? '' : opt.label)}
+                    style={chipStyle(selectedMain === opt.label)}
+                  >
+                    {opt.emoji} {opt.label}
+                  </motion.button>
+                ))}
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { setMainCustom(true); setSelectedMain('') }}
+                  style={{ ...chipStyle(false), color: 'var(--text-3)' }}
+                >
+                  ✏️ Другое
+                </motion.button>
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
+
+          {/* Гарнир */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div style={{
+                width: 4, height: 14, borderRadius: 2,
+                background: '#e0a060', flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 11, color: 'var(--text-2)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                Гарнир
+              </span>
+              {effectiveSide && (
+                <span style={{
+                  fontSize: 11, color: '#e0a060',
+                  background: 'rgba(224,160,96,0.1)', border: '1px solid rgba(224,160,96,0.2)',
+                  padding: '2px 8px', borderRadius: 10,
+                }}>
+                  {effectiveSide}
+                </span>
+              )}
+            </div>
+
+            {sideCustom ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  autoFocus
+                  value={sideText}
+                  onChange={e => setSideText(e.target.value)}
+                  placeholder="Введите гарнир..."
+                  style={inputStyle}
+                />
+                <button
+                  onClick={() => { setSideCustom(false); setSideText('') }}
+                  aria-label="Вернуться к списку"
+                  style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 8px' }}
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {SIDE_OPTIONS.map(opt => (
+                  <motion.button
+                    key={opt.label}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedSide(prev => prev === opt.label ? '' : opt.label)}
+                    style={chipStyle(selectedSide === opt.label)}
+                  >
+                    {opt.emoji} {opt.label}
+                  </motion.button>
+                ))}
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { setSideCustom(true); setSelectedSide('') }}
+                  style={{ ...chipStyle(false), color: 'var(--text-3)' }}
+                >
+                  ✏️ Другое
+                </motion.button>
+              </div>
+            )}
+          </div>
+
+          {/* CTA row */}
+          <div style={{
+            display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10,
+            paddingTop: 4,
+          }}>
+            {hasResults && !loading && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handleLoadMore}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 24, padding: '10px 20px',
+                  color: 'var(--text-2)', fontSize: 13, fontWeight: 500,
+                  cursor: 'pointer', minHeight: 44,
+                }}
+              >
+                Ещё рецепты →
+              </motion.button>
+            )}
+
+            <motion.button
+              whileHover={canSearch && !loading ? { scale: 1.02 } : {}}
+              whileTap={canSearch && !loading ? { scale: 0.97 } : {}}
+              onClick={() => { setExclude([]); setHasResults(false); onNewSearch(); handleSearch([]) }}
+              disabled={!canSearch || loading}
+              style={{
+                background: canSearch
+                  ? 'linear-gradient(135deg, #ff6b35 0%, #ff4500 100%)'
+                  : 'rgba(255,255,255,0.06)',
+                border: canSearch ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 24, padding: '10px 28px',
+                color: canSearch ? '#fff' : 'var(--text-3)',
+                fontSize: 13, fontWeight: 700,
+                cursor: canSearch && !loading ? 'pointer' : 'not-allowed',
+                transition: 'all 0.2s',
+                boxShadow: canSearch ? '0 0 20px rgba(255,107,53,0.35)' : 'none',
+                minHeight: 44,
+                letterSpacing: 0.3,
+              }}
+            >
+              {loading ? '⏳ Ищу...' : '🔍 Найти рецепты'}
+            </motion.button>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
