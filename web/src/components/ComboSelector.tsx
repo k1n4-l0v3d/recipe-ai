@@ -72,8 +72,8 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
     padding: '7px 13px',
     minHeight: 36,
     borderRadius: 20,
-    border: `1px solid ${active ? 'var(--accent)' : 'rgba(255,255,255,0.08)'}`,
-    background: active ? 'rgba(255,107,53,0.18)' : 'rgba(255,255,255,0.04)',
+    border: `1px solid ${active ? 'var(--accent)' : 'var(--border-2)'}`,
+    background: active ? 'var(--accent-glow)' : 'var(--bg-3)',
     color: active ? 'var(--accent)' : 'var(--text-2)',
     fontSize: 13,
     fontWeight: active ? 600 : 400,
@@ -85,8 +85,8 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
   const inputStyle: React.CSSProperties = {
     padding: '9px 16px',
     borderRadius: 20,
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid var(--border-2)',
+    background: 'var(--bg-3)',
     color: 'var(--text)',
     fontSize: 13,
     outline: 'none',
@@ -101,7 +101,7 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
       transition={{ duration: 0.3, delay: 0.1 }}
       style={{
         marginTop: 32,
-        background: 'linear-gradient(135deg, #131313 0%, #0f0f0f 100%)',
+        background: 'var(--bg-2)',
         border: '1px solid rgba(255,107,53,0.2)',
         borderRadius: 16,
         overflow: 'hidden',
@@ -188,7 +188,7 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
                 </div>
                 {mainText.trim() && (
                   <div style={{ fontSize: 11, color: 'var(--text-3)', paddingLeft: 4 }}>
-                    Нажми <kbd style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, padding: '1px 5px', fontSize: 10 }}>Enter</kbd> или кнопку «Найти рецепты» ↓
+                    Нажми <kbd style={{ background: 'var(--bg-3)', border: '1px solid var(--border-2)', borderRadius: 4, padding: '1px 5px', fontSize: 10 }}>Enter</kbd> или кнопку «Найти рецепты» ↓
                   </div>
                 )}
               </div>
@@ -216,7 +216,7 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
           </div>
 
           {/* Divider */}
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
+          <div style={{ height: 1, background: 'var(--border)' }} />
 
           {/* Гарнир */}
           <div>
@@ -265,7 +265,7 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
                 </div>
                 {sideText.trim() && (
                   <div style={{ fontSize: 11, color: 'var(--text-3)', paddingLeft: 4 }}>
-                    Нажми <kbd style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, padding: '1px 5px', fontSize: 10 }}>Enter</kbd> или кнопку «Найти рецепты» ↓
+                    Нажми <kbd style={{ background: 'var(--bg-3)', border: '1px solid var(--border-2)', borderRadius: 4, padding: '1px 5px', fontSize: 10 }}>Enter</kbd> или кнопку «Найти рецепты» ↓
                   </div>
                 )}
               </div>
@@ -303,8 +303,8 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
                 whileTap={{ scale: 0.97 }}
                 onClick={handleLoadMore}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'var(--bg-3)',
+                  border: '1px solid var(--border)',
                   borderRadius: 24, padding: '10px 20px',
                   color: 'var(--text-2)', fontSize: 13, fontWeight: 500,
                   cursor: 'pointer', minHeight: 44,
@@ -322,8 +322,8 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
               style={{
                 background: canSearch
                   ? 'linear-gradient(135deg, #ff6b35 0%, #ff4500 100%)'
-                  : 'rgba(255,255,255,0.06)',
-                border: canSearch ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                  : 'var(--bg-3)',
+                border: canSearch ? 'none' : '1px solid var(--border)',
                 borderRadius: 24, padding: '10px 28px',
                 color: canSearch ? '#fff' : 'var(--text-3)',
                 fontSize: 13, fontWeight: 700,

@@ -86,7 +86,7 @@ export default function ShoppingList({ recipeName, ingredients, onClose }: Props
           exit={{ opacity: 0, y: 40 }}
           transition={{ duration: 0.25 }}
           style={{
-            background: '#111', border: '1px solid var(--border-2)',
+            background: 'var(--bg-2)', border: '1px solid var(--border-2)',
             borderRadius: 20, width: '100%', maxWidth: 480,
             overflow: 'hidden', pointerEvents: 'auto',
             maxHeight: '80vh', display: 'flex', flexDirection: 'column',
@@ -161,7 +161,7 @@ export default function ShoppingList({ recipeName, ingredients, onClose }: Props
               onClick={copyToClipboard}
               style={{
                 flex: 1, padding: '11px', borderRadius: 12, fontSize: 13, fontWeight: 600,
-                background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.06)',
+                background: copied ? 'rgba(34,197,94,0.15)' : 'var(--bg-3)',
                 border: `1px solid ${copied ? 'rgba(34,197,94,0.4)' : 'var(--border-2)'}`,
                 color: copied ? '#22c55e' : 'var(--text-2)',
                 cursor: 'pointer', transition: 'all 0.2s',
@@ -173,7 +173,7 @@ export default function ShoppingList({ recipeName, ingredients, onClose }: Props
               onClick={print}
               style={{
                 flex: 1, padding: '11px', borderRadius: 12, fontSize: 13, fontWeight: 600,
-                background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-2)',
+                background: 'var(--bg-3)', border: '1px solid var(--border-2)',
                 color: 'var(--text-2)', cursor: 'pointer',
               }}
             >

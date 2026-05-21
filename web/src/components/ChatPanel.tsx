@@ -30,7 +30,7 @@ export default function ChatPanel({ messages, isStreaming, sources, onSend }: Pr
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      background: '#0a0a0a',
+      background: 'var(--bg)',
     }}>
       {/* Header */}
       <div style={{

@@ -114,7 +114,7 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div style={{
                   position: 'absolute', top: '100%', right: 0, marginTop: 8,
-                  background: '#111', border: '1px solid var(--border-2)',
+                  background: 'var(--bg-2)', border: '1px solid var(--border-2)',
                   borderRadius: 12, minWidth: 210, overflow: 'hidden',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.5)', zIndex: 300,
                 }}>

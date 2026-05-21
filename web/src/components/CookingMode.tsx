@@ -35,7 +35,7 @@ export default function CookingMode({ recipeName, steps, onClose }: Props) {
       exit={{ opacity: 0 }}
       style={{
         position: 'fixed', inset: 0, zIndex: 500,
-        background: '#0a0a0a',
+        background: 'var(--bg)',
         display: 'flex', flexDirection: 'column',
       }}
     >
@@ -58,7 +58,7 @@ export default function CookingMode({ recipeName, steps, onClose }: Props) {
           onClick={onClose}
           aria-label="Выйти из режима готовки"
           style={{
-            background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+            background: 'var(--bg-3)', border: '1px solid var(--border-2)',
             borderRadius: 10, padding: '8px 16px', color: 'var(--text-2)',
             fontSize: 13, cursor: 'pointer',
           }}
@@ -78,7 +78,7 @@ export default function CookingMode({ recipeName, steps, onClose }: Props) {
             onClick={() => setCurrent(i)}
             style={{
               height: 4, flex: 1, borderRadius: 2, border: 'none', cursor: 'pointer',
-              background: i === current ? 'var(--accent)' : i < current ? 'rgba(255,107,53,0.3)' : 'rgba(255,255,255,0.08)',
+              background: i === current ? 'var(--accent)' : i < current ? 'rgba(255,107,53,0.3)' : 'var(--bg-3)',
               transition: 'all 0.2s',
             }}
           />
@@ -134,8 +134,8 @@ export default function CookingMode({ recipeName, steps, onClose }: Props) {
           disabled={isFirst}
           style={{
             flex: 1, padding: '16px', borderRadius: 14, fontSize: 15, fontWeight: 600,
-            background: isFirst ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.07)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: isFirst ? 'var(--bg)' : 'var(--bg-3)',
+            border: '1px solid var(--border)',
             color: isFirst ? 'var(--text-3)' : 'var(--text-2)',
             cursor: isFirst ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s',

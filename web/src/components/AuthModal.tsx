@@ -90,7 +90,7 @@ export default function AuthModal({ isOpen, onClose }: Props) {
             }}
           >
             <div style={{
-              background: '#111',
+              background: 'var(--bg-2)',
               border: '1px solid var(--border-2)',
               borderRadius: 16,
               overflow: 'hidden',
