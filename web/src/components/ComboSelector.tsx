@@ -163,21 +163,34 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
             </div>
 
             {mainCustom ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                  autoFocus
-                  value={mainText}
-                  onChange={e => setMainText(e.target.value)}
-                  placeholder="Введите продукт..."
-                  style={inputStyle}
-                />
-                <button
-                  onClick={() => { setMainCustom(false); setMainText('') }}
-                  aria-label="Вернуться к списку"
-                  style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 8px' }}
-                >
-                  ×
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input
+                    autoFocus
+                    value={mainText}
+                    onChange={e => setMainText(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && mainText.trim()) {
+                        setExclude([]); setHasResults(false); onNewSearch()
+                        handleSearch([])
+                      }
+                    }}
+                    placeholder="Например: кальмары, тунец..."
+                    style={inputStyle}
+                  />
+                  <button
+                    onClick={() => { setMainCustom(false); setMainText('') }}
+                    aria-label="Вернуться к списку"
+                    style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 8px' }}
+                  >
+                    ×
+                  </button>
+                </div>
+                {mainText.trim() && (
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', paddingLeft: 4 }}>
+                    Нажми <kbd style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, padding: '1px 5px', fontSize: 10 }}>Enter</kbd> или кнопку «Найти рецепты» ↓
+                  </div>
+                )}
               </div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -227,21 +240,34 @@ export default function ComboSelector({ onResults, onLoadingChange, onNewSearch,
             </div>
 
             {sideCustom ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                  autoFocus
-                  value={sideText}
-                  onChange={e => setSideText(e.target.value)}
-                  placeholder="Введите гарнир..."
-                  style={inputStyle}
-                />
-                <button
-                  onClick={() => { setSideCustom(false); setSideText('') }}
-                  aria-label="Вернуться к списку"
-                  style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 8px' }}
-                >
-                  ×
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input
+                    autoFocus
+                    value={sideText}
+                    onChange={e => setSideText(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && sideText.trim()) {
+                        setExclude([]); setHasResults(false); onNewSearch()
+                        handleSearch([])
+                      }
+                    }}
+                    placeholder="Например: кускус, нут..."
+                    style={inputStyle}
+                  />
+                  <button
+                    onClick={() => { setSideCustom(false); setSideText('') }}
+                    aria-label="Вернуться к списку"
+                    style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 8px' }}
+                  >
+                    ×
+                  </button>
+                </div>
+                {sideText.trim() && (
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', paddingLeft: 4 }}>
+                    Нажми <kbd style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 4, padding: '1px 5px', fontSize: 10 }}>Enter</kbd> или кнопку «Найти рецепты» ↓
+                  </div>
+                )}
               </div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
