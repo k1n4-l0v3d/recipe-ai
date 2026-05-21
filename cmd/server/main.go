@@ -150,6 +150,7 @@ func main() {
 		// Recipe routes
 		apiGroup.GET("/categories", handlers.GetCategories())
 		apiGroup.GET("/categories/:id", handlers.GetCategoryRecipes(&recipeGenAdapter{groqClient}))
+		apiGroup.GET("/recipes/combo", handlers.GetComboRecipes(&recipeGenAdapter{groqClient}))
 		apiGroup.GET("/recipes/:id", handlers.GetRecipe(&recipeGenAdapter{groqClient}))
 		apiGroup.POST("/chat", handlers.ChatSSE(&chatGroqAdapter{groqClient}, &tavilyAdapter{tavilyClient}))
 		apiGroup.GET("/image", handlers.ImageProxy(cfg.PexelsAPIKey))

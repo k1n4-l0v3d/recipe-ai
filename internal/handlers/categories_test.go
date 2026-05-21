@@ -75,3 +75,67 @@ func TestGetCategoryRecipes(t *testing.T) {
 		t.Errorf("expected 1 recipe, got %d", len(recipes))
 	}
 }
+
+func TestGetComboRecipes(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	t.Run("returns 400 when both main and side are empty", func(t *testing.T) {
+		mock := &mockRecipeGenerator{list: []domain.RecipeSummary{}}
+		router := gin.New()
+		router.GET("/api/recipes/combo", handlers.GetComboRecipes(mock))
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/api/recipes/combo", nil)
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("returns recipes when only main is set", func(t *testing.T) {
+		mock := &mockRecipeGenerator{
+			list: []domain.RecipeSummary{
+				{Name: "Куриная грудка", Description: "Вкусно", Time: "30 мин", Difficulty: "Легко", Tags: []string{}},
+			},
+		}
+		router := gin.New()
+		router.GET("/api/recipes/combo", handlers.GetComboRecipes(mock))
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/api/recipes/combo?main=Курица", nil)
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected 200, got %d", w.Code)
+		}
+		var recipes []domain.RecipeSummary
+		json.NewDecoder(w.Body).Decode(&recipes)
+		if len(recipes) != 1 {
+			t.Errorf("expected 1 recipe, got %d", len(recipes))
+		}
+	})
+
+	t.Run("returns recipes when both main and side are set", func(t *testing.T) {
+		mock := &mockRecipeGenerator{
+			list: []domain.RecipeSummary{
+				{Name: "Курица с рисом", Description: "Вкусно", Time: "40 мин", Difficulty: "Легко", Tags: []string{}},
+			},
+		}
+		router := gin.New()
+		router.GET("/api/recipes/combo", handlers.GetComboRecipes(mock))
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/api/recipes/combo?main=Курица&side=Рис", nil)
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected 200, got %d", w.Code)
+		}
+		var recipes []domain.RecipeSummary
+		json.NewDecoder(w.Body).Decode(&recipes)
+		if len(recipes) != 1 {
+			t.Errorf("expected 1 recipe, got %d", len(recipes))
+		}
+	})
+}

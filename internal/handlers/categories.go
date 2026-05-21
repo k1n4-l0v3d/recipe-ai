@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -60,6 +61,51 @@ func GetCategoryRecipes(gen RecipeGenerator) gin.HandlerFunc {
 		}
 
 		// Assign URL-safe IDs (raw base64, no padding — matches frontend encodeRecipeId).
+		for i := range recipes {
+			recipes[i].ID = base64.RawURLEncoding.EncodeToString([]byte(recipes[i].Name))
+		}
+
+		c.JSON(http.StatusOK, recipes)
+	}
+}
+
+// GetComboRecipes generates recipes for a main dish + side dish combination.
+// GET /api/recipes/combo?main=Курица&side=Рис&exclude=Name1,Name2
+func GetComboRecipes(gen RecipeGenerator) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		main := strings.TrimSpace(c.Query("main"))
+		side := strings.TrimSpace(c.Query("side"))
+
+		if main == "" && side == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "main or side is required"})
+			return
+		}
+
+		var categoryStr string
+		switch {
+		case main != "" && side != "":
+			categoryStr = fmt.Sprintf("блюда из %s с %s", main, side)
+		case main != "":
+			categoryStr = fmt.Sprintf("блюда из %s", main)
+		default:
+			categoryStr = fmt.Sprintf("блюда с %s", side)
+		}
+
+		var exclude []string
+		if raw := c.Query("exclude"); raw != "" {
+			for _, name := range strings.Split(raw, ",") {
+				if name = strings.TrimSpace(name); name != "" {
+					exclude = append(exclude, name)
+				}
+			}
+		}
+
+		recipes, err := gen.GenerateRecipeListExcluding(c.Request.Context(), categoryStr, exclude)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
 		for i := range recipes {
 			recipes[i].ID = base64.RawURLEncoding.EncodeToString([]byte(recipes[i].Name))
 		}
