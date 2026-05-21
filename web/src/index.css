@@ -113,3 +113,11 @@ input, textarea {
   background: var(--bg-3);
   border-radius: 3px;
 }
+
+/* Print styles — hide UI chrome, show only recipe content */
+@media print {
+  nav, .chat-panel, [data-no-print] { display: none !important; }
+  body { background: #fff !important; color: #111 !important; }
+  * { color-scheme: light !important; }
+  img { max-width: 100%; }
+}

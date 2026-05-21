@@ -1,9 +1,30 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Recipe } from '../api/types'
 import { usePexelsImage } from '../hooks/usePexelsImage'
 import { useNote } from '../hooks/useNote'
 import { useAuth } from '../context/AuthContext'
+import CookingMode from './CookingMode'
+import ShoppingList from './ShoppingList'
+
+// Parse a leading number from strings like "300г", "2 ст.л.", "1/2 стакана"
+function parseAmount(amount: string, ratio: number): string {
+  if (ratio === 1) return amount
+  const match = amount.match(/^(\d+(?:[.,]\d+)?(?:\/\d+)?)\s*(.*)/)
+  if (!match) return amount
+  const [, numStr, rest] = match
+  let num: number
+  if (numStr.includes('/')) {
+    const [a, b] = numStr.split('/')
+    num = parseFloat(a) / parseFloat(b)
+  } else {
+    num = parseFloat(numStr.replace(',', '.'))
+  }
+  if (isNaN(num)) return amount
+  const result = num * ratio
+  const formatted = Number.isInteger(result) ? result.toString() : result.toFixed(1).replace(/\.0$/, '')
+  return `${formatted} ${rest}`.trim()
+}
 
 interface Props {
   recipe: Recipe
@@ -21,8 +42,19 @@ export default function RecipeDetail({ recipe }: Props) {
   const { content, saving, save } = useNote(recipe.id)
   const [editing, setEditing] = useState(false)
   const [noteText, setNoteText] = useState('')
+  const [servings, setServings] = useState(4)
+  const [showShopping, setShowShopping] = useState(false)
+  const [showCooking, setShowCooking] = useState(false)
+
+  const ratio = servings / 4
+
+  const scaledIngredients = recipe.ingredients.map(ing => ({
+    ...ing,
+    amount: parseAmount(ing.amount, ratio),
+  }))
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -95,19 +127,58 @@ export default function RecipeDetail({ recipe }: Props) {
 
       <div style={{ width: '100%', height: 1, background: 'var(--border)', marginBottom: 20 }} />
 
+      {/* Action buttons */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+        {[
+          { icon: '🛒', label: 'Список покупок', onClick: () => setShowShopping(true) },
+          { icon: '👨‍🍳', label: 'Режим готовки', onClick: () => setShowCooking(true) },
+          { icon: '🖨️', label: 'Печать', onClick: () => window.print() },
+        ].map(btn => (
+          <button
+            key={btn.label}
+            onClick={btn.onClick}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '7px 14px', borderRadius: 20, minHeight: 36,
+              background: 'var(--bg-3)', border: '1px solid var(--border-2)',
+              color: 'var(--text-2)', fontSize: 12, fontWeight: 500,
+              cursor: 'pointer', transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-2)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-2)' }}
+          >
+            {btn.icon} {btn.label}
+          </button>
+        ))}
+      </div>
+
       {/* Ingredients */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{
-          fontSize: 11,
-          letterSpacing: 2,
-          color: 'var(--text-3)',
-          textTransform: 'uppercase',
-          marginBottom: 12,
-        }}>
-          Ингредиенты
+        {/* Portion calculator */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, color: 'var(--text-3)', textTransform: 'uppercase' }}>
+            Ингредиенты
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-3)' }}>Порции:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg-3)', border: '1px solid var(--border-2)', borderRadius: 20, padding: '3px 8px' }}>
+              <button
+                onClick={() => setServings(s => Math.max(1, s - 1))}
+                aria-label="Уменьшить порции"
+                style={{ width: 22, height: 22, borderRadius: '50%', background: 'none', border: 'none', color: servings === 1 ? 'var(--text-3)' : 'var(--text-2)', cursor: servings === 1 ? 'not-allowed' : 'pointer', fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >−</button>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', minWidth: 16, textAlign: 'center' }}>{servings}</span>
+              <button
+                onClick={() => setServings(s => Math.min(20, s + 1))}
+                aria-label="Увеличить порции"
+                style={{ width: 22, height: 22, borderRadius: '50%', background: 'none', border: 'none', color: 'var(--text-2)', cursor: 'pointer', fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >+</button>
+            </div>
+          </div>
         </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {recipe.ingredients.map((ing, i) => (
+          {scaledIngredients.map((ing, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -10 }}
@@ -267,5 +338,28 @@ export default function RecipeDetail({ recipe }: Props) {
         </div>
       )}
     </motion.div>
+
+    {/* Shopping list modal */}
+    <AnimatePresence>
+      {showShopping && (
+        <ShoppingList
+          recipeName={recipe.name}
+          ingredients={scaledIngredients}
+          onClose={() => setShowShopping(false)}
+        />
+      )}
+    </AnimatePresence>
+
+    {/* Cooking mode — fullscreen */}
+    <AnimatePresence>
+      {showCooking && (
+        <CookingMode
+          recipeName={recipe.name}
+          steps={recipe.steps}
+          onClose={() => setShowCooking(false)}
+        />
+      )}
+    </AnimatePresence>
+    </>
   )
 }
