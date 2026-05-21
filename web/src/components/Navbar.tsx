@@ -2,12 +2,14 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../hooks/useTheme'
 import AuthModal from './AuthModal'
 
 export default function Navbar() {
   const location = useLocation()
   const isMobile = useIsMobile()
   const { user, logout } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
   const [modalOpen, setModalOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -55,7 +57,24 @@ export default function Navbar() {
           <span style={{ fontWeight: 700, fontSize: isMobile ? 16 : 18, letterSpacing: 2, fontFamily: 'var(--font-heading)' }}>ВКУСНО</span>
         </Link>
 
-        <div style={{ display: 'flex', gap: isMobile ? 12 : 20, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: isMobile ? 10 : 20, alignItems: 'center' }}>
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
+            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+            style={{
+              width: 36, height: 36, borderRadius: '50%',
+              background: theme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+              border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+              cursor: 'pointer', fontSize: 16, display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s', flexShrink: 0,
+            }}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+
           <Link
             to="/"
             onClick={handleRecipesClick}
