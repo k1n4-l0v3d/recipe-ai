@@ -54,7 +54,7 @@ export default function Navbar() {
       }}>
         <Link to="/" onClick={handleRecipesClick} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text)', textDecoration: 'none' }}>
           <span style={{ fontSize: 22 }}>🔥</span>
-          <span style={{ fontWeight: 700, fontSize: isMobile ? 16 : 18, letterSpacing: 2, fontFamily: 'var(--font-heading)' }}>ВКУСНО</span>
+          <span style={{ fontWeight: 700, fontSize: isMobile ? 16 : 18, letterSpacing: 2, fontFamily: 'var(--font-heading)' }}>ПРИГОТОВЬ!</span>
         </Link>
 
         <div style={{ display: 'flex', gap: isMobile ? 10 : 20, alignItems: 'center' }}>
