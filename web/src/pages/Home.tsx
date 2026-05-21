@@ -48,7 +48,7 @@ export default function Home() {
     setRecipes([])
   }
 
-  const handleCategorySelect = async (cat: Category, scrollToResults = false) => {
+  const handleCategorySelect = async (cat: Category, scrollToResults = true) => {
     setComboRecipes([])
     setSelectedCategory(cat)
     setRecipes([])
