@@ -41,6 +41,14 @@ export const api = {
 
   getRecipe: (recipeId: string): Promise<Recipe> =>
     get(`/recipes/${encodeURIComponent(recipeId)}`),
+
+  getComboRecipes: (main: string, side: string, exclude: string[] = []): Promise<RecipeSummary[]> => {
+    const params = new URLSearchParams()
+    if (main) params.set('main', main)
+    if (side) params.set('side', side)
+    if (exclude.length > 0) params.set('exclude', exclude.map(encodeURIComponent).join(','))
+    return get(`/recipes/combo?${params.toString()}`)
+  },
 }
 
 export const authApi = {

@@ -7,6 +7,7 @@ import CategoryGrid from '../components/CategoryGrid'
 import RecipeCard from '../components/RecipeCard'
 import RouletteWheel from '../components/RouletteWheel'
 import SkeletonCard from '../components/SkeletonCard'
+import ComboSelector from '../components/ComboSelector'
 import { useIsMobile } from '../hooks/useIsMobile'
 
 export default function Home() {
@@ -19,6 +20,8 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const recipesRef = useRef<HTMLDivElement>(null)
+  const [comboRecipes, setComboRecipes] = useState<RecipeSummary[]>([])
+  const [comboLoading, setComboLoading] = useState(false)
 
   const handleRouletteResult = (cat: Category) => {
     handleCategorySelect(cat)
@@ -31,7 +34,24 @@ export default function Home() {
     api.getCategories().then(setCategories).catch(console.error)
   }, [])
 
+  const handleComboResults = (results: RecipeSummary[]) => {
+    setSelectedCategory(null)
+    setRecipes([])
+    setComboRecipes(prev => {
+      const existingNames = new Set(prev.map(r => r.name.toLowerCase()))
+      const unique = results.filter(r => !existingNames.has(r.name.toLowerCase()))
+      return [...prev, ...unique]
+    })
+  }
+
+  const handleComboNewSearch = () => {
+    setComboRecipes([])
+    setSelectedCategory(null)
+    setRecipes([])
+  }
+
   const handleCategorySelect = async (cat: Category) => {
+    setComboRecipes([])
     setSelectedCategory(cat)
     setRecipes([])
     setRecipesLoading(true)
@@ -210,6 +230,49 @@ export default function Home() {
           onSelect={handleCategorySelect}
           loading={recipesLoading}
         />
+
+        <ComboSelector
+          onResults={handleComboResults}
+          onLoadingChange={setComboLoading}
+          onNewSearch={handleComboNewSearch}
+          loading={comboLoading}
+        />
+
+        {comboLoading && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 16,
+            marginTop: 32,
+          }}>
+            {Array.from({ length: isMobile ? 3 : 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        )}
+
+        {comboRecipes.length > 0 && !comboLoading && (
+          <>
+            <div style={{
+              fontSize: 11,
+              letterSpacing: 2,
+              color: 'var(--text-3)',
+              textTransform: 'uppercase',
+              margin: '32px 0 16px',
+            }}>
+              Результаты подбора
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))',
+              gap: 16,
+            }}>
+              {comboRecipes.map((r, i) => (
+                <RecipeCard key={`combo-${r.id}-${i}`} recipe={r} index={i} />
+              ))}
+            </div>
+          </>
+        )}
 
         {recipesLoading && (
           <div style={{
