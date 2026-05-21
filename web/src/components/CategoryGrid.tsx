@@ -10,7 +10,11 @@ interface Props {
 
 export default function CategoryGrid({ categories, selectedId, onSelect, loading }: Props) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: `repeat(${categories.length}, 1fr)`,
+      gap: 8,
+    }}>
       {categories.map((cat, i) => (
         <motion.button
           key={cat.id}
@@ -21,22 +25,24 @@ export default function CategoryGrid({ categories, selectedId, onSelect, loading
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
-            padding: '10px 18px',
+            justifyContent: 'center',
+            gap: 6,
+            padding: '10px 8px',
             minHeight: 44,
             borderRadius: 10,
             border: `1px solid ${selectedId === cat.id ? 'var(--accent)' : 'var(--border-2)'}`,
             background: selectedId === cat.id ? 'var(--accent-glow)' : 'var(--bg-3)',
             color: selectedId === cat.id ? 'var(--accent)' : 'var(--text-2)',
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: selectedId === cat.id ? 600 : 400,
             cursor: loading ? 'wait' : 'pointer',
             transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
           }}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
         >
-          <span style={{ fontSize: 18 }}>{cat.emoji}</span>
+          <span style={{ fontSize: 16 }}>{cat.emoji}</span>
           {cat.name}
         </motion.button>
       ))}
