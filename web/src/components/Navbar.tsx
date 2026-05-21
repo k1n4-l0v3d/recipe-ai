@@ -52,7 +52,7 @@ export default function Navbar() {
         top: 0,
         zIndex: 100,
       }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text)', textDecoration: 'none' }}>
+        <Link to="/" onClick={handleRecipesClick} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text)', textDecoration: 'none' }}>
           <span style={{ fontSize: 22 }}>🔥</span>
           <span style={{ fontWeight: 700, fontSize: isMobile ? 16 : 18, letterSpacing: 2, fontFamily: 'var(--font-heading)' }}>ВКУСНО</span>
         </Link>
@@ -74,18 +74,6 @@ export default function Navbar() {
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
-
-          <Link
-            to="/"
-            onClick={handleRecipesClick}
-            style={{
-              fontSize: 13,
-              color: location.pathname === '/' ? 'var(--accent)' : 'var(--text-2)',
-              textDecoration: 'none',
-            }}
-          >
-            Рецепты
-          </Link>
 
           {user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
