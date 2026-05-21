@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { useAnimate } from 'framer-motion'
 import type { Category } from '../api/types'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { useTheme } from '../hooks/useTheme'
 
 interface Props {
   categories: Category[]
@@ -10,14 +9,10 @@ interface Props {
   disabled?: boolean
 }
 
-const SECTOR_COLORS_DARK = [
-  '#1a0800', '#0a1a00', '#001a1a', '#1a0010',
-  '#1a1000', '#0a001a', '#1a0500', '#001a0a',
-]
-
-const SECTOR_COLORS_LIGHT = [
-  '#fde8d8', '#e8f5e0', '#e0f5f5', '#fde0ea',
-  '#fdf5d8', '#ede0f5', '#fde4d0', '#e0f5ea',
+// Sector colors via CSS variables — automatically switch with theme
+const SECTOR_CSS_VARS = [
+  'var(--sector-0)', 'var(--sector-1)', 'var(--sector-2)', 'var(--sector-3)',
+  'var(--sector-4)', 'var(--sector-5)', 'var(--sector-6)', 'var(--sector-7)',
 ]
 
 // Spin easing: fast start, long ease-out with inertia feel
@@ -45,10 +40,7 @@ type SpinState = 'idle' | 'spinning' | 'result'
 export default function RouletteWheel({ categories, onResult, disabled = false }: Props) {
   const [scope, animate] = useAnimate()
   const [spinState, setSpinState] = useState<SpinState>('idle')
-  const { theme } = useTheme()
-  const SECTOR_COLORS = theme === 'light' ? SECTOR_COLORS_LIGHT : SECTOR_COLORS_DARK
-  const hubFill = theme === 'light' ? '#f7f5f2' : '#0d0d0d'
-  const sectorStroke = theme === 'light' ? '#f7f5f2' : '#0d0d0d'
+  const SECTOR_COLORS = SECTOR_CSS_VARS
   const [winner, setWinner] = useState<Category | null>(null)
   const currentRotation = useRef(0)
   const isMobile = useIsMobile()
@@ -131,7 +123,7 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
                   <path
                     d={`M0,0 L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z`}
                     fill={SECTOR_COLORS[i % SECTOR_COLORS.length]}
-                    stroke={sectorStroke}
+                    stroke="var(--wheel-stroke)"
                     strokeWidth="2"
                   />
                   <text
@@ -150,7 +142,7 @@ export default function RouletteWheel({ categories, onResult, disabled = false }
             <circle cx="0" cy="0" r={r} fill="none" stroke="#ff6b35" strokeWidth="2" strokeOpacity="0.5" />
 
             {/* Centre hub */}
-            <circle cx="0" cy="0" r="22" fill={hubFill} stroke="#ff6b35" strokeWidth="2" />
+            <circle cx="0" cy="0" r="22" fill="var(--wheel-hub)" stroke="#ff6b35" strokeWidth="2" />
             <text x="0" y="8" fontSize="17" textAnchor="middle" style={{ userSelect: 'none' }}>🔥</text>
           </g>
         </svg>

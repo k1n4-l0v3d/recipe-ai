@@ -8,6 +8,16 @@
 
 /* Dark theme (default) */
 :root, [data-theme="dark"] {
+  --sector-0: #1a0800;
+  --sector-1: #0a1a00;
+  --sector-2: #001a1a;
+  --sector-3: #1a0010;
+  --sector-4: #1a1000;
+  --sector-5: #0a001a;
+  --sector-6: #1a0500;
+  --sector-7: #001a0a;
+  --wheel-hub: #0d0d0d;
+  --wheel-stroke: #0d0d0d;
   --bg: #0d0d0d;
   --bg-2: #111111;
   --bg-3: #1a1a1a;
@@ -27,6 +37,16 @@
 
 /* Light theme */
 [data-theme="light"] {
+  --sector-0: #fde8d8;
+  --sector-1: #e8f5e0;
+  --sector-2: #e0f5f5;
+  --sector-3: #fde0ea;
+  --sector-4: #fdf5d8;
+  --sector-5: #ede0f5;
+  --sector-6: #fde4d0;
+  --sector-7: #e0f5ea;
+  --wheel-hub: #f7f5f2;
+  --wheel-stroke: #e5e3df;
   --bg: #f7f5f2;
   --bg-2: #ffffff;
   --bg-3: #eeecea;
