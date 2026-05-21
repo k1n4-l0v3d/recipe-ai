@@ -20,14 +20,12 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const recipesRef = useRef<HTMLDivElement>(null)
+  const recipesGridRef = useRef<HTMLDivElement>(null)
   const [comboRecipes, setComboRecipes] = useState<RecipeSummary[]>([])
   const [comboLoading, setComboLoading] = useState(false)
 
   const handleRouletteResult = (cat: Category) => {
-    handleCategorySelect(cat)
-    setTimeout(() => {
-      recipesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 300)
+    handleCategorySelect(cat, true)
   }
 
   useEffect(() => {
@@ -50,7 +48,7 @@ export default function Home() {
     setRecipes([])
   }
 
-  const handleCategorySelect = async (cat: Category) => {
+  const handleCategorySelect = async (cat: Category, scrollToResults = false) => {
     setComboRecipes([])
     setSelectedCategory(cat)
     setRecipes([])
@@ -58,6 +56,11 @@ export default function Home() {
     try {
       const list = await api.getCategoryRecipes(cat.id)
       setRecipes(list)
+      if (scrollToResults) {
+        setTimeout(() => {
+          recipesGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 100)
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -289,7 +292,7 @@ export default function Home() {
 
         {recipes.length > 0 && (
           <>
-            <div style={{
+            <div ref={recipesGridRef} style={{
               fontSize: 11,
               letterSpacing: 2,
               color: 'var(--text-3)',
